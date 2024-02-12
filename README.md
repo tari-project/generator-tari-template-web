@@ -1,22 +1,21 @@
-# generator-tari-template-web [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
-> Web admin template for tari templates
+# Tari Template Website
 
-UNDER DEVELOPMENT. NOT READY FOR USE.
+UNDER DEVELOPMENT 
 
-```bash
-yo tari-template-web
-```
+Provides a basic Vite + React interface to construct and submit transactions from a given WASM template address.
 
-## Getting To Know Yeoman
+Currently, only the wallet JSON-RPC interface is supported.
 
- * Yeoman has a heart of gold.
- * Yeoman is a person with feelings and opinions, but is very easy to work with.
- * Yeoman can be too opinionated at times but is easily convinced not to be.
- * Feel free to [learn more about Yeoman](http://yeoman.io/).
+### TODO
 
-[npm-image]: https://badge.fury.io/js/generator-tari-template-web.svg
-[npm-url]: https://npmjs.org/package/generator-tari-template-web
-[travis-image]: https://travis-ci.com/tari-project/generator-tari-template-web.svg?branch=master
-[travis-url]: https://travis-ci.com/tari-project/generator-tari-template-web
-[daviddm-image]: https://david-dm.org/tari-project/generator-tari-template-web.svg?theme=shields.io
-[daviddm-url]: https://david-dm.org/tari-project/generator-tari-template-web
+- [ ] Add support for [Tari snap](https://github.com/tari-project/tari-snap)
+- [ ] Support for dry-runs
+- [ ] Support for transaction fee estimation
+- [ ] Improved handling of argument and return types (e.g. Proof, Bucket etc)
+- [ ] Improved badge usage
+- [ ] Dashboard that displays well-formatted data from managed components
+- [ ] Previous transactions list
+- [ ] Customization of transactions before submitting
+- [ ] UX
+
+
