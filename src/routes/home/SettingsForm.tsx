@@ -31,11 +31,13 @@ interface Props {
   settings: Settings | null;
   onSave: (settings: Settings) => void;
 }
-
 export interface Settings {
   template: string | null;
+  snapUrl: string;
   walletdUrl: string;
 }
+
+
 
 function SettingsForm(props: Props) {
   const { settings, onSave } = props;

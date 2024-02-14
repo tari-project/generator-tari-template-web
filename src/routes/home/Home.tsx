@@ -56,6 +56,7 @@ function Home() {
     result: FinalizeResult | null;
   } | null>(null);
 
+
   useEffect(() => {
     const s = localStorage.getItem("settings");
     if (s) {
@@ -68,6 +69,7 @@ function Home() {
       if (!localStorage.getItem("settings")) {
         setSettings({
           walletdUrl: "http://localhost:9000/json_rpc",
+          snapUrl: "http://localhost:8080",
           template: ""
         });
       } else {
@@ -129,34 +131,17 @@ function Home() {
     }
   }, [components, selectedComponent]);
 
-  if (isLoading || !settings) {
-    return (
-      <>
-        <Grid item sm={12} md={12} xs={12}>
-          <SecondaryHeading>Template</SecondaryHeading>
-        </Grid>
-        <Grid item xs={12} md={12} lg={12}>
-          {error && (
-            <Alert icon={<Error />} severity="error">
-              {error}
-            </Alert>
-          )}
-          <StyledPaper>
-            <CircularProgress />
-          </StyledPaper>
-        </Grid>
-        <Grid item xs={12} md={12} lg={12}>
-          <CircularProgress />
-        </Grid>
-      </>
-    );
+  if (isLoading || !settings || !settings.template) {
+    return <HomeLayout error={error} settings={settings} setSettings={setSettings}>
+      <pre>Please add a template address to settings</pre>
+    </HomeLayout>;
   }
 
   const forms = templateDefinition?.V1.functions.map((func, i) => {
     return (
       <>
         <CallTemplateForm
-          key={`form${i}`}
+          key={`calltemplate${i}`}
           func={func}
           badges={badges}
           selectedBadge={selectedBadge}
@@ -167,7 +152,7 @@ function Home() {
           onCall={values => {
             setLastResult({ index: i, result: null });
             buildInstructionsAndSubmit(
-              settings,
+              window.tari,
               selectedBadge,
               selectedComponent,
               func,
@@ -221,6 +206,23 @@ function Home() {
     );
   });
 
+  return <HomeLayout error={error} settings={settings} setSettings={setSettings}>
+    {forms?.map((form, i) => (
+      <Grid key={`form${i}`} item xs={12} md={12} lg={12}>
+        {form}
+      </Grid>
+    ))}
+  </HomeLayout>;
+}
+
+interface LayoutProps {
+  error: string | null;
+  settings: Settings | null;
+  setSettings: (settings: Settings) => void;
+  children: React.ReactNode;
+}
+
+function HomeLayout({error, settings, setSettings, children}: LayoutProps) {
   return (
     <>
       <Grid item sm={12} md={12} xs={12}>
@@ -233,16 +235,16 @@ function Home() {
           </Alert>
         )}
         <StyledPaper>
-          <SettingsForm settings={settings} onSave={setSettings} />
+          {settings ?  <SettingsForm settings={settings} onSave={setSettings} /> : <CircularProgress />}
         </StyledPaper>
       </Grid>
       <Grid item xs={12} md={12} lg={12}>
         <StyledPaper>
-          {forms || "Please add a template address to settings"}
+          {children}
         </StyledPaper>
       </Grid>
     </>
-  );
+  )
 }
 
 export default Home;

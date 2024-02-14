@@ -160,9 +160,9 @@ const SelectField = ({
           disabled={items.length === 0}
           onChange={evt => onChange(evt.target.value)}
         >
-          {enableSelectNone && <MenuItem value = "">None</MenuItem>}
+          {enableSelectNone && <MenuItem key={0} value = "">None</MenuItem>}
           {items.map((item, i) => (
-            <MenuItem key={i} value={item}>
+            <MenuItem key={i+1} value={item}>
               {item}
             </MenuItem>
           ))}

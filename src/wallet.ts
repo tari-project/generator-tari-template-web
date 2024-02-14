@@ -1,18 +1,22 @@
 import { Settings } from "./routes/home/SettingsForm.tsx";
-import { FunctionDef } from "./templateDefinition.ts";
 
 import {
   createClient,
   TransactionSubmitRequest,
-  AccountGetDefaultRequest,
+  FunctionDef,
   SubstatesListRequest,
   SubstatesGetRequest,
+  TransactionGetResultResponse,
   Instruction,
   SubstateType,
   SubstateId,
   Arg,
   WalletDaemonClient
 } from "@tarilabs/wallet_jrpc_client";
+
+import {providers} from 'tari.js';
+const { TariProvider } = providers;
+
 
 export async function getTemplateDefinition(
   walletdUrl: string,
@@ -56,45 +60,70 @@ async function authorizeClient(client: WalletDaemonClient) {
 }
 
 export async function buildInstructionsAndSubmit(
-  settings: Settings,
+  provider: TariProvider,
   selectedBadge: string | null,
   selectedComponent: string | null,
   func: FunctionDef,
   args: object
 ) {
-  const client = createClient(settings.walletdUrl || "http://localhost:9000");
+  // const client = createClient(settings.walletdUrl || "http://localhost:9000");
   // Login
-  await authorizeClient(client);
+  // await authorizeClient(client);
 
   const req = await createTransactionRequest(
-    client,
-    settings,
+    provider,
     selectedBadge,
     selectedComponent,
     func,
     args
   );
 
-  const submitResp = await client.submitTransaction(req);
-  let resp = await client.waitForTransactionResult({
-    transaction_id: submitResp.transaction_id,
-    timeout_secs: 60
+  const resp = await provider.submitTransaction({
+    account_index: req.signing_key_index,
+    instructions: req.instructions,
+    fee_instructions: req.fee_instructions,
+    input_refs: [],
+    required_substates: [],
+    is_dry_run: false,
   });
-  return resp;
+
+  let result = await waitForTransactionResult(provider, resp.transaction_id);
+
+  // const submitResp = await client.submitTransaction(req);
+  // let resp = await client.waitForTransactionResult({
+  //   transaction_id: submitResp.transaction_id,
+  //   timeout_secs: 60
+  // });
+  return result;
+}
+
+async function waitForTransactionResult(provider: TariProvider, transactionId: string) {
+  while (true) {
+    const resp =  await provider.getTransactionResult(transactionId) as TransactionGetResultResponse;
+    const FINALIZED_STATUSES = [
+      "Accepted",
+      "Rejected",
+      "InvalidTransaction",
+      "OnlyFeeAccepted",
+      "DryRun"
+    ];
+
+    if ( FINALIZED_STATUSES.includes(resp.status) ) {
+      return resp;
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
 }
 
 export async function createTransactionRequest(
-  client: WalletDaemonClient,
-  settings: Settings,
+  provider: TariProvider,
   selectedBadge: string | null,
   selectedComponent: string | null,
   func: FunctionDef,
   formValues: object
 ): Promise<TransactionSubmitRequest> {
   const fee = 2000;
-  const { account } = await client.accountsGetDefault(
-    {} as AccountGetDefaultRequest
-  );
+  const {account} = await provider.getAccount();
 
   const fee_instructions = [
     {
@@ -133,24 +162,24 @@ export async function createTransactionRequest(
           {
             PutLastInstructionOutputOnWorkspace: { key: [bucketId++] }
           }
-        ]
+        ] as Instruction[]
       : [];
 
-  const callInstruction: Instruction = isMethod
+  const callInstruction = isMethod
     ? {
         CallMethod: {
           component_address: selectedComponent,
           method: func.name,
           args: args
         }
-      }
+      } as Instruction
     : {
         CallFunction: {
           template_address: settings.template,
           function: func.name,
           args: args
         }
-      };
+      } as Instruction;
 
   const nextInstructions: Instruction[] =
     func.output.Other?.name === "Bucket"
@@ -163,14 +192,14 @@ export async function createTransactionRequest(
               args: [{ Workspace: [bucketId] }]
             }
           }
-        ]
+        ] as Instruction[]
       : [];
 
   const instructions: Instruction[] = [
     ...proofInstructions,
     callInstruction,
     ...nextInstructions,
-    "DropAllProofsInWorkspace"
+    "DropAllProofsInWorkspace" as Instruction
   ];
 
   return {

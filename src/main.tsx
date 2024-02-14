@@ -26,3 +26,14 @@ root.render(
     <RouterProvider router={router} />
   </React.StrictMode>,
 );
+
+
+import {providers} from "tari.js";
+
+declare global {
+  const {TariProvider, MetaMaskInpageProvider} = providers;
+  interface Window {
+    tari: TariProvider;
+    ethereum: MetaMaskInpageProvider;
+  }
+}

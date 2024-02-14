@@ -40,6 +40,8 @@ import Container from "@mui/material/Container";
 import Breadcrumbs from "../components/Breadcrumbs";
 import { breadcrumbRoutes } from "../App";
 import Grid from "@mui/material/Grid";
+import {TariConnectButton} from "../connect/TariConnectButton.tsx";
+import Stack from "@mui/material/Stack";
 
 const drawerWidth = 300;
 
@@ -115,6 +117,7 @@ export default function Layout() {
           <Toolbar
             sx={{
               pr: "24px", // keep right padding when drawer closed
+              justifyContent: "space-between",
             }}
           >
             <IconButton
@@ -133,6 +136,7 @@ export default function Layout() {
             <Link to="/">
               <Logo />
             </Link>
+            <TariConnectButton />
           </Toolbar>
         </AppBar>
         <Drawer variant="permanent" open={open}>
