@@ -25,21 +25,32 @@ import { StyledPaper } from "../../components/StyledComponents";
 import Grid from "@mui/material/Grid";
 import SecondaryHeading from "../../components/SecondaryHeading";
 import { FinalizeResult } from "@tarilabs/wallet_jrpc_client";
-import { useState, useEffect } from "react";
+import {useState, useEffect, useContext} from "react";
 import SettingsForm, { Settings } from "./SettingsForm.tsx";
 import CallTemplateForm from "../../components/CallTemplateForm.tsx";
 import { Error } from "@mui/icons-material";
-import {
-  buildInstructionsAndSubmit,
-  getTemplateDefinition,
-  listSubstates
-} from "../../wallet.ts";
+import * as wallet from "../../wallet.ts";
 import { Alert, CircularProgress } from "@mui/material";
 import { TemplateDef } from "@tarilabs/wallet_jrpc_client";
+import * as React from "react";
+import Button from "@mui/material/Button";
+import {useOutletContext} from "react-router-dom";
+
+function loadSettings(): Settings {
+  const lsSettings = localStorage.getItem("settings");
+  if (lsSettings) {
+    return JSON.parse(lsSettings);
+  }
+
+  return {
+    template: ""
+  };
+}
 
 function Home() {
+  const provider = useOutletContext();
   const [error, setError] = useState(null);
-  const [settings, setSettings] = useState<Settings | null>(null);
+  const [settings, setSettings] = useState<Settings>(loadSettings());
   const [isLoading, setIsLoading] = useState(true);
   const [components, setComponents] = useState<string[]>([]);
   const [selectedComponent, setSelectedComponent] = useState<string | null>(
@@ -57,27 +68,14 @@ function Home() {
   } | null>(null);
 
 
-  useEffect(() => {
-    const s = localStorage.getItem("settings");
-    if (s) {
-      setSettings(JSON.parse(s));
-    }
-  }, []);
+  const onSaveSettings = (settings: Settings) => {
+    localStorage.setItem("settings", JSON.stringify(settings));
+    setSettings(settings);
+  }
 
   useEffect(() => {
-    if (settings) {
-      if (!localStorage.getItem("settings")) {
-        setSettings({
-          walletdUrl: "http://localhost:9000/json_rpc",
-          snapUrl: "http://localhost:8080",
-          template: ""
-        });
-      } else {
-        localStorage.setItem("settings", JSON.stringify(settings));
-      }
-
-      const getTemplateDef = (settings.template
-        ? getTemplateDefinition(settings.walletdUrl, settings.template)
+      const getTemplateDef = ((settings.template && provider)
+        ? wallet.getTemplateDefinition(provider, settings.template)
         : Promise.resolve(null)
       )
         .then(setTemplateDefinition)
@@ -85,7 +83,8 @@ function Home() {
           setError(e.message);
         });
 
-      const getBadges = listSubstates(settings.walletdUrl, null, "Resource")
+      const walletdUrl = 'http://localhost:9000'
+      const getBadges = wallet.listSubstates(walletdUrl, null, "Resource")
         .then(substates => {
           setBadges(
             // Best guess :/
@@ -99,11 +98,11 @@ function Home() {
         });
 
       const getComponents = (settings.template
-        ? listSubstates(settings.walletdUrl, settings.template, "Component")
+        ? wallet.listSubstates(walletdUrl, settings.template, "Component")
         : Promise.resolve(null)
       )
         .then(substates => {
-          if (substates) {
+          if (substates?.length) {
             setComponents(
               substates
                 .filter(s => !!s.substate_id.Component)
@@ -122,8 +121,7 @@ function Home() {
           setIsLoading(false);
         }
       );
-    }
-  }, [settings]);
+  }, [settings, provider]);
 
   useEffect(() => {
     if (!selectedComponent) {
@@ -131,11 +129,18 @@ function Home() {
     }
   }, [components, selectedComponent]);
 
-  if (isLoading || !settings || !settings.template) {
-    return <HomeLayout error={error} settings={settings} setSettings={setSettings}>
+  if (!provider) {
+    return <HomeLayout error={error} settings={settings} setSettings={onSaveSettings}>
+      <pre>Please connect your wallet</pre>
+    </HomeLayout>;
+  }
+
+  if (!settings || !settings.template) {
+    return <HomeLayout error={error} settings={settings} setSettings={onSaveSettings}>
       <pre>Please add a template address to settings</pre>
     </HomeLayout>;
   }
+
 
   const forms = templateDefinition?.V1.functions.map((func, i) => {
     return (
@@ -150,16 +155,17 @@ function Home() {
           selectedComponent={selectedComponent}
           onComponentChange={setSelectedComponent}
           onCall={values => {
-            setLastResult({ index: i, result: null });
-            buildInstructionsAndSubmit(
-              window.tari,
+            setLastResult({index: i, result: null});
+            wallet.buildInstructionsAndSubmit(
+              provider,
+              settings,
               selectedBadge,
               selectedComponent,
               func,
               values
             )
               .then(resp => {
-                setLastResult({ index: i, result: resp.result });
+                setLastResult({index: i, result: resp.result});
               })
               .catch(e => {
                 setLastResult(null);
@@ -200,13 +206,14 @@ function Home() {
             ))}
           </Grid>
         ) : (
-          lastResult?.index === i && <CircularProgress />
+          lastResult?.index === i && <CircularProgress/>
         )}
       </>
     );
   });
 
-  return <HomeLayout error={error} settings={settings} setSettings={setSettings}>
+  return <HomeLayout error={error} settings={settings} onCreateFreeTestCoins={async () => { await wallet.createFreeTestCoins(provider)}} setSettings={onSaveSettings}>
+    {isLoading ? <CircularProgress /> : null}
     {forms?.map((form, i) => (
       <Grid key={`form${i}`} item xs={12} md={12} lg={12}>
         {form}
@@ -215,14 +222,16 @@ function Home() {
   </HomeLayout>;
 }
 
+
 interface LayoutProps {
   error: string | null;
   settings: Settings | null;
   setSettings: (settings: Settings) => void;
+  onCreateFreeTestCoins?: () => void;
   children: React.ReactNode;
 }
 
-function HomeLayout({error, settings, setSettings, children}: LayoutProps) {
+function HomeLayout({error, settings, setSettings, onCreateFreeTestCoins, children}: LayoutProps) {
   return (
     <>
       <Grid item sm={12} md={12} xs={12}>
@@ -235,6 +244,7 @@ function HomeLayout({error, settings, setSettings, children}: LayoutProps) {
           </Alert>
         )}
         <StyledPaper>
+          {onCreateFreeTestCoins && <Button onClick={onCreateFreeTestCoins}>Create Free Test Coins</Button>}
           {settings ?  <SettingsForm settings={settings} onSave={setSettings} /> : <CircularProgress />}
         </StyledPaper>
       </Grid>
@@ -246,5 +256,7 @@ function HomeLayout({error, settings, setSettings, children}: LayoutProps) {
     </>
   )
 }
+
+
 
 export default Home;

@@ -15,13 +15,17 @@ const { WalletDaemonParameters, WalletDaemonTariProvider, TariPermissions } = pr
 export interface TariWalletDaemonConnectDialog {
     open: boolean;
     onClose: () => void;
+    onConnected: (provider: WalletDaemonTariProvider) => void;
     signalingServerUrl: string;
     permissions: TariPermissions;
     optionalPermissions: TariPermissions;
 }
 
+// TODO: hack, onConnection should ideally return the provider once it has connected
+const providerHack = {provider: null as any};
+
 export function TariWalletDaemonConnectDialog(props: TariWalletDaemonConnectDialog) {
-    const { onClose, open } = props;
+    const { onClose, open, onConnected } = props;
 
     const [isCopied, setIsCopied] = useState(false);
     const [fadeClass, setFadeClass] = useState('tariFadeIn');
@@ -29,6 +33,7 @@ export function TariWalletDaemonConnectDialog(props: TariWalletDaemonConnectDial
 
     const onConnection = () => {
         console.log("wallet daemon connected");
+        onConnected(providerHack.provider);
         handleClose();
     };
 
@@ -43,10 +48,10 @@ export function TariWalletDaemonConnectDialog(props: TariWalletDaemonConnectDial
             };
             WalletDaemonTariProvider.build(params)
                 .then((provider) => {
-                    window.tari = provider;
                     if (provider.tokenUrl) {
                         setTokenUrl(provider.tokenUrl);
                     }
+                    providerHack.provider = provider;
                 });
         }
     }, [open]);

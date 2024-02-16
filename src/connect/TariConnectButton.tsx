@@ -4,8 +4,15 @@ import Button from "@mui/material/Button";
 import TariLogoWhite from './content/tari-logo-white.svg';
 import {TariWalletSelectionDialog} from './TariWalletSelectionDialog';
 import {useEffect} from "react";
+import {providers} from "tari.js";
+const {TariProvider} = providers;
 
-export function TariConnectButton() {
+interface Props {
+  onConnected: (provider: TariProvider) => void;
+}
+
+export function TariConnectButton(props: Props) {
+  const {onConnected} = props;
   const [walletSelectionOpen, setWalletSelectionOpen] = React.useState(false);
 
   const handleConnectClick = () => {
@@ -18,6 +25,7 @@ export function TariConnectButton() {
 
   const [isConnected, setIsConnected] = React.useState(false);
   useEffect(() => {
+    // TODO: this isnt correct and will make many intervals without cancelling them but it works for now
     setInterval(() => {
       if (window.tari && window.tari?.isConnected() && isConnected != window.tari?.isConnected()) {
         setIsConnected(window.tari.isConnected());
@@ -34,6 +42,7 @@ export function TariConnectButton() {
       <TariWalletSelectionDialog
         open={walletSelectionOpen}
         onClose={onWalletSelectionClose}
+        onConnected={onConnected}
       />
     </>
   );

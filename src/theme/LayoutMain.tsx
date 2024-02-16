@@ -20,28 +20,30 @@
 //  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import { useState } from "react";
-import { styled } from "@mui/material/styles";
+import {useEffect, useState} from "react";
+import {styled} from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import MuiDrawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
+import MuiAppBar, {AppBarProps as MuiAppBarProps} from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import List from "@mui/material/List";
 import IconButton from "@mui/material/IconButton";
 import MenuOpenOutlinedIcon from "@mui/icons-material/MenuOpenOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import { mainListItems } from "../components/MenuItems";
-import { ThemeProvider } from "@mui/material";
+import {mainListItems} from "../components/MenuItems";
+import {ThemeProvider} from "@mui/material";
 import theme from "./theme";
-import { Outlet, Link } from "react-router-dom";
+import {Outlet, Link} from "react-router-dom";
 import Logo from "../assets/Logo";
 import Container from "@mui/material/Container";
 import Breadcrumbs from "../components/Breadcrumbs";
-import { breadcrumbRoutes } from "../App";
+import {breadcrumbRoutes} from "../App";
 import Grid from "@mui/material/Grid";
 import {TariConnectButton} from "../connect/TariConnectButton.tsx";
-import Stack from "@mui/material/Stack";
+import {providers} from 'tari.js';
+
+const {TariProvider} = providers;
 
 const drawerWidth = 300;
 
@@ -51,7 +53,7 @@ interface AppBarProps extends MuiAppBarProps {
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
-})<AppBarProps>(({ theme, open }) => ({
+})<AppBarProps>(({theme, open}) => ({
   zIndex: theme.zIndex.drawer + 1,
   transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.easeOut,
@@ -69,7 +71,7 @@ const AppBar = styled(MuiAppBar, {
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
+})(({theme, open}) => ({
   "& .MuiDrawer-paper": {
     position: "relative",
     whiteSpace: "nowrap",
@@ -97,13 +99,15 @@ const Drawer = styled(MuiDrawer, {
 
 export default function Layout() {
   const [open, setOpen] = useState(false);
+  const [provider, setProvider] = useState<TariProvider | null>(null);
+
   const toggleDrawer = () => {
     setOpen(!open);
   };
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ display: "flex" }}>
-        <CssBaseline />
+      <Box sx={{display: "flex"}}>
+        <CssBaseline/>
         <AppBar
           position="absolute"
           open={open}
@@ -128,15 +132,17 @@ export default function Layout() {
               sx={{
                 marginRight: "36px",
                 color: "#757575",
-                ...(open && { display: "none" }),
+                ...(open && {display: "none"}),
               }}
             >
-              <MenuOutlinedIcon />
+              <MenuOutlinedIcon/>
             </IconButton>
             <Link to="/">
-              <Logo />
+              <Logo/>
             </Link>
-            <TariConnectButton />
+            <TariConnectButton onConnected={(p) => {
+              setProvider(p);
+            }}/>
           </Toolbar>
         </AppBar>
         <Drawer variant="permanent" open={open}>
@@ -149,7 +155,7 @@ export default function Layout() {
             }}
           >
             <IconButton onClick={toggleDrawer}>
-              <MenuOpenOutlinedIcon />
+              <MenuOpenOutlinedIcon/>
             </IconButton>
           </Toolbar>
           <List component="nav">{mainListItems}</List>
@@ -164,7 +170,7 @@ export default function Layout() {
             overflow: "auto",
           }}
         >
-          <Toolbar />
+          <Toolbar/>
           <Container
             maxWidth="xl"
             style={{
@@ -182,10 +188,10 @@ export default function Layout() {
                     borderBottom: `1px solid #EAEAEA`,
                   }}
                 >
-                  <Breadcrumbs items={breadcrumbRoutes} />
+                  <Breadcrumbs items={breadcrumbRoutes}/>
                 </div>
               </Grid>
-              <Outlet />
+              <Outlet context={provider}/>
             </Grid>
           </Container>
         </Box>

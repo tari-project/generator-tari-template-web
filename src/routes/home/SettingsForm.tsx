@@ -33,8 +33,6 @@ interface Props {
 }
 export interface Settings {
   template: string | null;
-  snapUrl: string;
-  walletdUrl: string;
 }
 
 
@@ -63,21 +61,6 @@ function SettingsForm(props: Props) {
             })
           }
           value={currentSettings.template || ""}
-        />
-      </Grid>
-      <Grid item xs={12} md={12} lg={12}>
-        <FormLabel htmlFor="wallet Url">Wallet Url</FormLabel>
-        <TextField
-          id="wallet Url"
-          name="wallet Url"
-          placeholder="wallet Url"
-          onChange={evt =>
-            setCurrentSettings({
-              ...currentSettings,
-              walletdUrl: evt.target.value
-            })
-          }
-          value={currentSettings.walletdUrl}
         />
       </Grid>
       <Grid item xs={12} md={12} lg={12}>
