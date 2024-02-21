@@ -13,14 +13,14 @@
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.3",
     "@mui/x-data-grid": "^5.17.17",
-    "@tarilabs/wallet_jrpc_client": "file:../dan/clients/javascript/wallet_daemon_client",
+    "@tarilabs/wallet_jrpc_client": "https://gitpkg.now.sh/tari-project/tari-dan/clients/javascript/wallet_daemon_client?development",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.9.0",
     "react-router-dom": "^6.4.3",
     "use-react-router-breadcrumbs": "^4.0.1",
     "qrcode.react": "3.1.0",
-    "tari.js": "file:../../code/tari.js"
+    "tari.js": "github:tari-project/tari.js#main"
   },
   "devDependencies": {
     "@emotion/react": "^11.10.5",
