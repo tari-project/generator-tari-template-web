@@ -41,7 +41,7 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import {breadcrumbRoutes} from "../App";
 import Grid from "@mui/material/Grid";
 import {TariConnectButton} from "../connect/TariConnectButton.tsx";
-import {providers} from 'tari.js';
+import {providers} from '@tariproject/tarijs';
 
 const {TariProvider} = providers;
 

@@ -8,7 +8,7 @@ import Typography from "@mui/material/Typography";
 import { QRCodeSVG } from "qrcode.react";
 import { useState, useEffect } from "react";
 import styles from './TariWalletDaemonConnectDialog.module.css';
-import {providers} from "tari.js";
+import {providers} from "@tariproject/tarijs";
 
 const { WalletDaemonParameters, WalletDaemonTariProvider, TariPermissions } = providers.walletDaemon;
 

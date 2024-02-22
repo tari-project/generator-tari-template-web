@@ -24,17 +24,18 @@ import "./Home.css";
 import { StyledPaper } from "../../components/StyledComponents";
 import Grid from "@mui/material/Grid";
 import SecondaryHeading from "../../components/SecondaryHeading";
-import { FinalizeResult } from "@tarilabs/wallet_jrpc_client";
+import { FinalizeResult, TemplateDef } from "@tariproject/wallet_jrpc_client";
 import {useState, useEffect, useContext} from "react";
 import SettingsForm, { Settings } from "./SettingsForm.tsx";
 import CallTemplateForm from "../../components/CallTemplateForm.tsx";
 import { Error } from "@mui/icons-material";
 import * as wallet from "../../wallet.ts";
 import { Alert, CircularProgress } from "@mui/material";
-import { TemplateDef } from "@tarilabs/wallet_jrpc_client";
 import * as React from "react";
 import Button from "@mui/material/Button";
 import {useOutletContext} from "react-router-dom";
+import {providers} from "@tariproject/tarijs";
+const {TariProvider} = providers;
 
 function loadSettings(): Settings {
   const lsSettings = localStorage.getItem("settings");
@@ -48,7 +49,7 @@ function loadSettings(): Settings {
 }
 
 function Home() {
-  const provider = useOutletContext();
+  const provider = useOutletContext<TariProvider | null>();
   const [error, setError] = useState(null);
   const [settings, setSettings] = useState<Settings>(loadSettings());
   const [isLoading, setIsLoading] = useState(true);
@@ -74,7 +75,11 @@ function Home() {
   }
 
   useEffect(() => {
-      const getTemplateDef = ((settings.template && provider)
+      if (!provider) {
+        return;
+      }
+
+      const getTemplateDef = ((settings.template)
         ? wallet.getTemplateDefinition(provider, settings.template)
         : Promise.resolve(null)
       )
@@ -83,8 +88,7 @@ function Home() {
           setError(e.message);
         });
 
-      const walletdUrl = 'http://localhost:9000'
-      const getBadges = wallet.listSubstates(walletdUrl, null, "Resource")
+      const getBadges = wallet.listSubstates(provider, null, "Resource")
         .then(substates => {
           setBadges(
             // Best guess :/
@@ -98,7 +102,7 @@ function Home() {
         });
 
       const getComponents = (settings.template
-        ? wallet.listSubstates(walletdUrl, settings.template, "Component")
+        ? wallet.listSubstates(provider, settings.template, "Component")
         : Promise.resolve(null)
       )
         .then(substates => {
@@ -142,6 +146,8 @@ function Home() {
   }
 
 
+  console.log(templateDefinition);
+
   const forms = templateDefinition?.V1.functions.map((func, i) => {
     return (
       <>
@@ -165,7 +171,7 @@ function Home() {
               values
             )
               .then(resp => {
-                setLastResult({index: i, result: resp.result});
+                setLastResult({index: i, result: resp.result as FinalizeResult});
               })
               .catch(e => {
                 setLastResult(null);

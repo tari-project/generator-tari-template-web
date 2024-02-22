@@ -30,8 +30,10 @@ import { getSubstate, listSubstates } from "../../wallet.ts";
 import { Alert, CircularProgress } from "@mui/material";
 import { Settings } from "../home/SettingsForm.tsx";
 
-import { SubstatesGetResponse } from "@tarilabs/wallet_jrpc_client";
+import { SubstatesGetResponse } from "@tariproject/wallet_jrpc_client";
+import {useOutletContext} from "react-router-dom";
 function Substates() {
+  const provider = useOutletContext<TariProvider>();
   const [error, setError] = useState(null);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,7 +57,6 @@ function Substates() {
     if (settings) {
       if (!localStorage.getItem("settings")) {
         setSettings({
-          walletdUrl: "http://localhost:9000/json_rpc",
           template: ""
         });
       } else {
@@ -63,7 +64,7 @@ function Substates() {
       }
 
       settings.template;
-      listSubstates(settings.walletdUrl, settings.template, "Component")
+      listSubstates(provider, settings.template, "Component")
         .then(substates => {
           setComponents(
             substates
@@ -79,18 +80,17 @@ function Substates() {
   }, [settings]);
 
   useEffect(() => {
-    if (selectedComponent) {
-      if (settings) {
-        getSubstate(settings.walletdUrl, { Component: selectedComponent }).then(
+    if (selectedComponent && provider) {
+        getSubstate(provider, selectedComponent).then(
           substate => {
-            setLoadedComponent(substate);
+            // TODO: fix interface for tarijs
+            setLoadedComponent(substate as SubstatesGetResponse | null);
           }
         );
-      }
     } else {
       setSelectedComponent(components.length > 0 ? components[0] : null);
     }
-  }, [components, selectedComponent, settings]);
+  }, [components, selectedComponent, settings, provider]);
 
   if (isLoading || !settings) {
     return (

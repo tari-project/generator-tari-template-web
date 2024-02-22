@@ -4,7 +4,7 @@ import Button from "@mui/material/Button";
 import TariLogoWhite from './content/tari-logo-white.svg';
 import {TariWalletSelectionDialog} from './TariWalletSelectionDialog';
 import {useEffect} from "react";
-import {providers} from "tari.js";
+import {providers} from "@tariproject/tarijs";
 const {TariProvider} = providers;
 
 interface Props {
