@@ -21,118 +21,105 @@
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import "./Substates.css";
-import { StyledPaper } from "../../components/StyledComponents";
+import {StyledPaper} from "../../components/StyledComponents";
 import Grid from "@mui/material/Grid";
 import SecondaryHeading from "../../components/SecondaryHeading";
-import { useState, useEffect } from "react";
-import { Error } from "@mui/icons-material";
-import { getSubstate, listSubstates } from "../../wallet.ts";
-import { Alert, CircularProgress } from "@mui/material";
-import { Settings } from "../home/SettingsForm.tsx";
+import {useState, useEffect} from "react";
+import {Error} from "@mui/icons-material";
+import {getSubstate, listSubstates} from "../../wallet.ts";
+import {Alert, CircularProgress} from "@mui/material";
+import {Settings} from "../home/SettingsForm.tsx";
 
-import { SubstatesGetResponse } from "@tariproject/wallet_jrpc_client";
-import {useOutletContext} from "react-router-dom";
+import {SubstatesGetResponse} from "@tariproject/wallet_jrpc_client";
+import useTariProvider from "../../store/provider.ts";
+import useSettings from "../../store/settings.ts";
+
 function Substates() {
-  const provider = useOutletContext<TariProvider>();
-  const [error, setError] = useState(null);
-  const [settings, setSettings] = useState<Settings | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [components, setComponents] = useState<string[]>([]);
-  const [selectedComponent, setSelectedComponent] = useState<string | null>(
-    null
-  );
-  const [
-    loadedComponent,
-    setLoadedComponent
-  ] = useState<SubstatesGetResponse | null>(null);
+    const {provider} = useTariProvider();
+    const {settings} = useSettings();
 
-  useEffect(() => {
-    const s = localStorage.getItem("settings");
-    if (s) {
-      setSettings(JSON.parse(s));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (settings) {
-      if (!localStorage.getItem("settings")) {
-        setSettings({
-          template: ""
-        });
-      } else {
-        localStorage.setItem("settings", JSON.stringify(settings));
-      }
-
-      settings.template;
-      listSubstates(provider, settings.template, "Component")
-        .then(substates => {
-          setComponents(
-            substates
-              .filter(s => !!s.substate_id.Component)
-              .map(s => s.substate_id.Component)
-          );
-          setIsLoading(false);
-        })
-        .catch(e => {
-          setError(e.message);
-        });
-    }
-  }, [settings]);
-
-  useEffect(() => {
-    if (selectedComponent && provider) {
-        getSubstate(provider, selectedComponent).then(
-          substate => {
-            // TODO: fix interface for tarijs
-            setLoadedComponent(substate as SubstatesGetResponse | null);
-          }
-        );
-    } else {
-      setSelectedComponent(components.length > 0 ? components[0] : null);
-    }
-  }, [components, selectedComponent, settings, provider]);
-
-  if (isLoading || !settings) {
-    return (
-      <>
-        <Grid item sm={12} md={12} xs={12}>
-          <SecondaryHeading>Components</SecondaryHeading>
-        </Grid>
-        <Grid item xs={12} md={12} lg={12}>
-          {error && (
-            <Alert icon={<Error />} severity="error">
-              {error}
-            </Alert>
-          )}
-          <StyledPaper>
-            <CircularProgress />
-          </StyledPaper>
-        </Grid>
-        <Grid item xs={12} md={12} lg={12}>
-          <CircularProgress />
-        </Grid>
-      </>
+    const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [components, setComponents] = useState<string[]>([]);
+    const [selectedComponent, setSelectedComponent] = useState<string | null>(
+        null
     );
-  }
-  return (
-    <>
-      <Grid item sm={12} md={12} xs={12}>
-        <SecondaryHeading>Components</SecondaryHeading>
-      </Grid>
-      <Grid item xs={12} md={12} lg={12}>
-        {error && (
-          <Alert icon={<Error />} severity="error">
-            {error}
-          </Alert>
-        )}
-        <StyledPaper>
+    const [
+        loadedComponent,
+        setLoadedComponent
+    ] = useState<SubstatesGetResponse | null>(null);
+
+    useEffect(() => {
+        if (settings) {
+            listSubstates(provider, settings.template, "Component")
+                .then(substates => {
+                    setComponents(
+                        substates
+                            .filter(s => !!s.substate_id.Component)
+                            .map(s => s.substate_id.Component)
+                    );
+                    setIsLoading(false);
+                })
+                .catch(e => {
+                    setError(e.message);
+                });
+        }
+    }, [settings]);
+
+    useEffect(() => {
+        if (selectedComponent && provider) {
+            getSubstate(provider, selectedComponent).then(
+                substate => {
+                    // TODO: fix interface for tarijs
+                    setLoadedComponent(substate as SubstatesGetResponse | null);
+                }
+            );
+        } else {
+            setSelectedComponent(components.length > 0 ? components[0] : null);
+        }
+    }, [components, selectedComponent, settings, provider]);
+
+    if (isLoading || !settings) {
+        return (
+            <>
+                <Grid item sm={12} md={12} xs={12}>
+                    <SecondaryHeading>Components</SecondaryHeading>
+                </Grid>
+                <Grid item xs={12} md={12} lg={12}>
+                    {error && (
+                        <Alert icon={<Error/>} severity="error">
+                            {error}
+                        </Alert>
+                    )}
+                    <StyledPaper>
+                        <CircularProgress/>
+                    </StyledPaper>
+                </Grid>
+                <Grid item xs={12} md={12} lg={12}>
+                    <CircularProgress/>
+                </Grid>
+            </>
+        );
+    }
+    return (
+        <>
+            <Grid item sm={12} md={12} xs={12}>
+                <SecondaryHeading>Components</SecondaryHeading>
+            </Grid>
+            <Grid item xs={12} md={12} lg={12}>
+                {error && (
+                    <Alert icon={<Error/>} severity="error">
+                        {error}
+                    </Alert>
+                )}
+                <StyledPaper>
           <pre>
             {loadedComponent && JSON.stringify(loadedComponent.value, null, 2)}
           </pre>
-        </StyledPaper>
-      </Grid>
-    </>
-  );
+                </StyledPaper>
+            </Grid>
+        </>
+    );
 }
 
 export default Substates;

@@ -20,7 +20,8 @@
     "react-router-dom": "^6.4.3",
     "use-react-router-breadcrumbs": "^4.0.1",
     "qrcode.react": "3.1.0",
-    "@tariproject/tarijs": "file:../../code/tari.js"
+    "@tariproject/tarijs": "file:../../code/tari.js",
+    "zustand": "4.5.1"
   },
   "devDependencies": {
     "@emotion/react": "^11.10.5",
