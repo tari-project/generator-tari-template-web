@@ -4,14 +4,16 @@ import Button from "@mui/material/Button";
 import TariLogoWhite from './content/tari-logo-white.svg';
 import {TariWalletSelectionDialog} from './TariWalletSelectionDialog';
 import {useEffect} from "react";
-import {providers} from "tari.js";
+import {providers} from "@tariproject/tarijs";
+import useTariProvider from "../store/provider.ts";
 const {TariProvider} = providers;
 
 interface Props {
-  onConnected: (provider: TariProvider) => void;
+  onConnected?: (provider: TariProvider) => void;
 }
 
 export function TariConnectButton(props: Props) {
+  const {provider, setProvider} = useTariProvider();
   const {onConnected} = props;
   const [walletSelectionOpen, setWalletSelectionOpen] = React.useState(false);
 
@@ -23,26 +25,21 @@ export function TariConnectButton(props: Props) {
     setWalletSelectionOpen(false);
   };
 
-  const [isConnected, setIsConnected] = React.useState(false);
-  useEffect(() => {
-    // TODO: this isnt correct and will make many intervals without cancelling them but it works for now
-    setInterval(() => {
-      if (window.tari && window.tari?.isConnected() && isConnected != window.tari?.isConnected()) {
-        setIsConnected(window.tari.isConnected());
-      }
-    }, 1000);
-  }, []);
+  const handleOnConnected = (provider: TariProvider) => {
+    setProvider(provider);
+    onConnected?.(provider);
+  };
 
   return (
     <>
       <Button variant='contained' onClick={handleConnectClick}>
         <img width="30px" height="30px" src={TariLogoWhite}/>
-        <div style={{paddingLeft: '10px'}}>{isConnected ? "Connected" : "Connect"}</div>
+        <div style={{paddingLeft: '10px'}}>{provider?.isConnected() ? "Connected" : "Connect"}</div>
       </Button>
       <TariWalletSelectionDialog
         open={walletSelectionOpen}
         onClose={onWalletSelectionClose}
-        onConnected={onConnected}
+        onConnected={handleOnConnected}
       />
     </>
   );

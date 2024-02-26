@@ -20,57 +20,29 @@
 //  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import "./Home.css";
-import Button from "@mui/material/Button";
-import {FormLabel, TextField} from "@mui/material";
-import {useState} from "react";
-import Grid from "@mui/material/Grid";
-import useSettings from "../../store/settings.ts";
-
-interface Props {
-    settings: Settings | null;
-    onSave: (settings: Settings) => void;
-}
+import {create} from "zustand";
+import {createJSONStorage, persist} from "zustand/middleware";
 
 export interface Settings {
     template: string | null;
 }
 
-
-function SettingsForm(props: Props) {
-    const {settings, setSettings} = useSettings();
-
-    const [currentSettings, setCurrentSettings] = useState(settings);
-
-    return (
-        <form
-            onSubmit={evt => {
-                evt.preventDefault();
-                setSettings(currentSettings);
-            }}
-        >
-            <Grid item xs={12} md={12} lg={12}>
-                <FormLabel htmlFor="template">Template ID</FormLabel>
-                <TextField
-                    id="template"
-                    name="template ID"
-                    placeholder="Template ID"
-                    onChange={evt =>
-                        setCurrentSettings({
-                            ...currentSettings,
-                            template: evt.target.value
-                        })
-                    }
-                    value={currentSettings.template || ""}
-                />
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-                <Button type="submit" disabled={settings === currentSettings}>
-                    Save
-                </Button>
-            </Grid>
-        </form>
-    );
+export interface SettingsStore {
+    settings: Settings,
+    setSettings(settings: object);
 }
 
-export default SettingsForm;
+const useSettings = create<SettingsStore>()(
+    persist<SettingsStore>(
+        (set) => ({
+            settings: {template: null},
+            setSettings(settings) { set({settings}) },
+        }),
+        {
+            name: "settings",
+            storage: createJSONStorage(() => localStorage),
+        },
+    ),
+);
+
+export default useSettings;

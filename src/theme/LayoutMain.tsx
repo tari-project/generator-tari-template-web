@@ -20,7 +20,7 @@
 //  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {styled} from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import MuiDrawer from "@mui/material/Drawer";
@@ -41,9 +41,6 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import {breadcrumbRoutes} from "../App";
 import Grid from "@mui/material/Grid";
 import {TariConnectButton} from "../connect/TariConnectButton.tsx";
-import {providers} from 'tari.js';
-
-const {TariProvider} = providers;
 
 const drawerWidth = 300;
 
@@ -99,7 +96,6 @@ const Drawer = styled(MuiDrawer, {
 
 export default function Layout() {
   const [open, setOpen] = useState(false);
-  const [provider, setProvider] = useState<TariProvider | null>(null);
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -140,9 +136,7 @@ export default function Layout() {
             <Link to="/">
               <Logo/>
             </Link>
-            <TariConnectButton onConnected={(p) => {
-              setProvider(p);
-            }}/>
+            <TariConnectButton />
           </Toolbar>
         </AppBar>
         <Drawer variant="permanent" open={open}>
@@ -191,7 +185,7 @@ export default function Layout() {
                   <Breadcrumbs items={breadcrumbRoutes}/>
                 </div>
               </Grid>
-              <Outlet context={provider}/>
+              <Outlet />
             </Grid>
           </Container>
         </Box>

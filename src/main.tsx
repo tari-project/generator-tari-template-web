@@ -28,7 +28,7 @@ root.render(
 );
 
 
-import {providers} from "tari.js";
+import {providers} from "@tariproject/tarijs";
 
 declare global {
   const {TariProvider, MetaMaskInpageProvider} = providers;

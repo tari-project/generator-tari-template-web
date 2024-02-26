@@ -11,7 +11,7 @@ import MetamaskLogo from './content/metamask-logo.svg';
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import {providers} from "tari.js";
+import {providers} from "@tariproject/tarijs";
 import {TariWalletDaemonConnectDialog} from './TariWalletDaemonConnectDialog';
 
 
@@ -36,6 +36,8 @@ const SNAP_ID = import.meta.env.VITE_SNAP_ORIGIN || "local:http://localhost:8080
 // But each application will have different permission needs
 let walletDaemonPermissions = new TariPermissions();
 walletDaemonPermissions
+    // Required for createFreeTestCoins
+  .addPermission("Admin")
   .addPermission(new TariPermissionKeyList())
   .addPermission(new TariPermissionAccountInfo())
   .addPermission(new TariPermissionTransactionsGet())
@@ -67,7 +69,6 @@ export function TariWalletSelectionDialog(props: WalletSelectionProps) {
     const metamaskProvider = new MetamaskTariProvider(SNAP_ID, window.ethereum);
     await metamaskProvider.connect();
     onConnected(metamaskProvider);
-    window.tari = metamaskProvider;
     handleClose();
   };
 
