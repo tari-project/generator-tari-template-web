@@ -37,7 +37,7 @@ export interface Settings {
 }
 
 
-function SettingsForm(props: Props) {
+function SettingsForm(_props: Props) {
     const {settings, setSettings} = useSettings();
 
     const [currentSettings, setCurrentSettings] = useState(settings);

@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import ErrorPage from "./routes/ErrorPage";
 import Substates from "./routes/substates";
+import { TariProvider, MetaMaskInpageProvider } from "@tariproject/tarijs";
 
 const router = createBrowserRouter([
   {
@@ -28,10 +29,8 @@ root.render(
 );
 
 
-import {providers} from "@tariproject/tarijs";
-
 declare global {
-  const {TariProvider, MetaMaskInpageProvider} = providers;
+
   interface Window {
     tari: TariProvider;
     ethereum: MetaMaskInpageProvider;

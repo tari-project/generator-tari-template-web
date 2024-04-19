@@ -27,12 +27,6 @@ import ListItemText from "@mui/material/ListItemText";
 import {
   IoHomeOutline,
   IoHome,
-  IoBarChartOutline,
-  IoBarChart,
-  IoGitNetworkOutline,
-  IoGitNetwork,
-  IoImageOutline,
-  IoImage,
   IoExtensionPuzzleOutline,
   IoExtensionPuzzle
 } from "react-icons/io5";
