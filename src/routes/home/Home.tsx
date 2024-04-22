@@ -25,7 +25,7 @@ import {StyledPaper} from "../../components/StyledComponents";
 import Grid from "@mui/material/Grid";
 import SecondaryHeading from "../../components/SecondaryHeading";
 import {FinalizeResult, TemplateDef} from "@tariproject/wallet_jrpc_client";
-import {useState, useEffect, useContext} from "react";
+import {useState, useEffect} from "react";
 import SettingsForm, {Settings} from "./SettingsForm.tsx";
 import CallTemplateForm from "../../components/CallTemplateForm.tsx";
 import {Error} from "@mui/icons-material";
@@ -33,22 +33,8 @@ import * as wallet from "../../wallet.ts";
 import {Alert, CircularProgress} from "@mui/material";
 import * as React from "react";
 import Button from "@mui/material/Button";
-import {providers} from "@tariproject/tarijs";
 import useSettings from "../../store/settings.ts";
 import useTariProvider from "../../store/provider.ts";
-
-const {TariProvider} = providers;
-
-function loadSettings(): Settings {
-    const lsSettings = localStorage.getItem("settings");
-    if (lsSettings) {
-        return JSON.parse(lsSettings);
-    }
-
-    return {
-        template: ""
-    };
-}
 
 function Home() {
     const {settings, setSettings} = useSettings();
@@ -184,27 +170,27 @@ function Home() {
                 />
                 {lastResult?.result && lastResult.index === i ? (
                     <Grid key={`grid${i}`} item xs={12} md={12} lg={12}>
-                        {lastResult.result.result.Accept ? (
+                        {(lastResult as any).result.result.Accept ? (
                             <Alert severity="success">
                                 Accept:
-                                <pre>{JSON.stringify(lastResult.result.result.Accept)}</pre>
+                                <pre>{JSON.stringify((lastResult as any).result.result.Accept)}</pre>
                                 {lastResult.result.execution_results
                                     .filter(r => r.indexed.value !== "Null")
                                     .map((r, i) => (
                                         <p key={`return${i}`}>{JSON.stringify(r.indexed.value)}</p>
                                     ))}
                             </Alert>
-                        ) : lastResult.result.result.AcceptFeeRejectRest ? (
+                        ) : (lastResult as any).result.result.AcceptFeeRejectRest ? (
                             <Alert severity="error">
                                 AcceptFeeRejectRest: Error calling function:{" "}
                                 {JSON.stringify(
-                                    lastResult.result.result.AcceptFeeRejectRest[1]
+                                    (lastResult as any).result.result.AcceptFeeRejectRest[1]
                                 )}
                             </Alert>
                         ) : (
                             <Alert severity="error">
                                 Error calling function:{" "}
-                                {JSON.stringify(lastResult.result.result.Reject)}
+                                {JSON.stringify((lastResult as any).result.result.Reject)}
                             </Alert>
                         )}
 

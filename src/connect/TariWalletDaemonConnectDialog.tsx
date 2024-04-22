@@ -8,9 +8,7 @@ import Typography from "@mui/material/Typography";
 import { QRCodeSVG } from "qrcode.react";
 import { useState, useEffect } from "react";
 import styles from './TariWalletDaemonConnectDialog.module.css';
-import {providers} from "@tariproject/tarijs";
-
-const { WalletDaemonParameters, WalletDaemonTariProvider, TariPermissions } = providers.walletDaemon;
+import { WalletDaemonTariProvider, TariPermissions, WalletDaemonParameters } from "@tariproject/tarijs";
 
 export interface TariWalletDaemonConnectDialog {
     open: boolean;
@@ -28,7 +26,7 @@ export function TariWalletDaemonConnectDialog(props: TariWalletDaemonConnectDial
     const { onClose, open, onConnected } = props;
 
     const [isCopied, setIsCopied] = useState(false);
-    const [fadeClass, setFadeClass] = useState('tariFadeIn');
+    const [, setFadeClass] = useState('tariFadeIn');
     const [tokenUrl, setTokenUrl] = useState("");
 
     const onConnection = () => {

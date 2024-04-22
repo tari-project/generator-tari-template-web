@@ -32,6 +32,11 @@ export default function ErrorPage() {
   const error = useRouteError() as ErrorType;
   console.error(error);
 
+  const getErrorText = (e: ErrorType): string => {
+    let value = (e as any);
+    return value?.message || value?.statusText || value || "Unknown error";
+  }
+
   return (
     <div
       style={{
@@ -48,7 +53,7 @@ export default function ErrorPage() {
               <Typography variant="h3">Oops!</Typography>
               <Typography>Sorry, an unexpected error has occurred.</Typography>
               <Typography>
-                <i>{error?.message || error?.statusText || error || "Unknown error"}</i>
+                <i>{getErrorText(error)}</i>
               </Typography>{" "}
             </StyledPaper>
           </Grid>

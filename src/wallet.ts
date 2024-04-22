@@ -1,35 +1,12 @@
 import {Settings} from "./routes/home/SettingsForm.tsx";
-
 import {
     FunctionDef,
-    SubstatesListRequest,
-    SubstatesGetRequest,
-    TransactionGetResultResponse,
     Instruction,
     SubstateType,
-    SubstateId,
     Arg,
-    WalletDaemonClient,
 } from "@tariproject/wallet_jrpc_client";
 
-
-import {providers} from '@tariproject/tarijs';
-import {TariProvider} from "@tariproject/tarijs/dist/providers";
-
-const {
-    TariProvider,
-    metamask: {MetamaskTariProvider},
-    walletDaemon: {WalletDaemonTariProvider},
-    types: {
-        SubstateRequirement,
-        TransactionSubmitRequest,
-        TransactionStatus
-    }
-} = providers;
-
-function createClient(url: string) {
-    return WalletDaemonClient.usingFetchTransport(url);
-}
+import { TariProvider, MetamaskTariProvider, WalletDaemonTariProvider, TransactionStatus, SubmitTransactionRequest } from "@tariproject/tarijs";
 
 export async function getTemplateDefinition<T extends TariProvider>(
     provider: T,
@@ -40,14 +17,17 @@ export async function getTemplateDefinition<T extends TariProvider>(
 }
 
 export async function listSubstates<T extends TariProvider>(
-    provider: T,
+    provider: T | null,
     template: string | null,
     substateType: SubstateType | null
 ) {
+    if (provider === null) {
+        throw new Error('Provider is not initialized');
+    }
     if (provider.providerName !== "WalletDaemon") {
         throw new Error(`Unsupported provider ${provider.providerName}`);
     }
-    const substates = await (provider as WalletDaemonTariProvider).listSubstates(
+    const substates = await (provider as unknown as WalletDaemonTariProvider).listSubstates(
         template,
         substateType
     );
@@ -58,11 +38,11 @@ export async function createFreeTestCoins<T extends TariProvider>(provider: T) {
     console.log("createFreeTestCoins", provider.providerName);
     switch (provider.providerName) {
         case "WalletDaemon":
-            const walletProvider = provider as WalletDaemonTariProvider;
+            const walletProvider = provider as unknown as WalletDaemonTariProvider;
             await walletProvider.createFreeTestCoins();
             break;
         case "Metamask":
-            const metamaskProvider = provider as MetamaskTariProvider;
+            const metamaskProvider = provider as unknown as MetamaskTariProvider;
             await metamaskProvider.createFreeTestCoins(0);
             break;
         default:
@@ -73,12 +53,6 @@ export async function createFreeTestCoins<T extends TariProvider>(provider: T) {
 export async function getSubstate<T extends TariProvider>(provider: T, substateId: string) {
     const resp = await provider.getSubstate(substateId);
     return resp;
-}
-
-async function authorizeClient(client: WalletDaemonClient) {
-    // TODO: keep this token in local storage
-    const token = await client.authRequest(["Admin"]);
-    await client.authAccept(token, "web");
 }
 
 export async function buildInstructionsAndSubmit(
@@ -134,7 +108,7 @@ export async function createTransactionRequest(
     selectedComponent: string | null,
     func: FunctionDef,
     formValues: object
-): Promise<TransactionSubmitRequest> {
+): Promise<SubmitTransactionRequest> {
     const fee = 2000;
     const account = await provider.getAccount();
 
@@ -162,7 +136,7 @@ export async function createTransactionRequest(
 
     let bucketId = 0;
 
-    const proofInstructions: Instruction[] =
+    const proofInstructions =
         isMethod && selectedBadge
             ? [
                 {
@@ -175,8 +149,7 @@ export async function createTransactionRequest(
                 {
                     PutLastInstructionOutputOnWorkspace: {key: [bucketId++]}
                 }
-            ] as Instruction[]
-            : [];
+            ] : [];
 
     const callInstruction = isMethod
         ? {
@@ -185,30 +158,34 @@ export async function createTransactionRequest(
                 method: func.name,
                 args: args
             }
-        } as Instruction
+        }
         : {
             CallFunction: {
                 template_address: settings.template,
                 function: func.name,
                 args: args
             }
-        } as Instruction;
+        };
 
-    const nextInstructions: Instruction[] =
-        func.output.Other?.name === "Bucket"
-            ? [
-                {PutLastInstructionOutputOnWorkspace: {key: [bucketId]}},
-                {
-                    CallMethod: {
-                        component_address: account.address,
-                        method: "deposit",
-                        args: [{Workspace: [bucketId]}]
-                    }
+    func.output
+
+    let nextInstructions: Instruction[] = [];
+    if (typeof func.output === 'object' && "Other" in func.output && func.output.Other.name === "Bucket") {
+        nextInstructions = [
+            {
+                PutLastInstructionOutputOnWorkspace: {key: [bucketId]}
+            },
+            {
+                CallMethod: {
+                    component_address: account.address,
+                    method: "deposit",
+                    args: [`Workspace(${bucketId})`],
                 }
-            ] as Instruction[]
-            : [];
+            }
+        ];
+    }
 
-    const instructions: Instruction[] = [
+    const instructions = [
         ...proofInstructions,
         callInstruction,
         ...nextInstructions,
@@ -226,10 +203,9 @@ export async function createTransactionRequest(
     return {
         account_id: account.account_id,
         fee_instructions,
-        instructions,
+        instructions: instructions as object[],
         inputs: [],
         input_refs: [],
-        override_inputs: false,
         required_substates,
         is_dry_run: false,
         min_epoch: null,

@@ -29,7 +29,7 @@ export interface Settings {
 
 export interface SettingsStore {
     settings: Settings,
-    setSettings(settings: object);
+    setSettings(settings: Settings): void;
 }
 
 const useSettings = create<SettingsStore>()(

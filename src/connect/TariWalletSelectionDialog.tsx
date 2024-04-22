@@ -11,23 +11,10 @@ import MetamaskLogo from './content/metamask-logo.svg';
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import {providers} from "@tariproject/tarijs";
 import {TariWalletDaemonConnectDialog} from './TariWalletDaemonConnectDialog';
+import { MetamaskTariProvider, TariPermissions, TariProvider } from '@tariproject/tarijs';
+import { TariPermissionKeyList, TariPermissionAccountInfo, TariPermissionTransactionsGet, TariPermissionSubstatesRead, TariPermissionTemplatesRead, TariPermissionTransactionSend } from '@tariproject/tarijs/dist/providers/wallet_daemon';
 
-
-const {
-  walletDaemon: {
-    TariPermissionAccountInfo,
-    TariPermissionKeyList,
-    TariPermissionTransactionSend,
-    TariPermissions,
-    TariPermissionTransactionsGet,
-    TariPermissionSubstatesRead,
-    TariPermissionTemplatesRead
-  },
-  metamask: {MetamaskTariProvider},
-  TariProvider
-} = providers;
 
 const SIGNALING_SERVER_URL = import.meta.env.VITE_SIGNALING_SERVER_ADDRESS || "http://localhost:9100";
 const SNAP_ID = import.meta.env.VITE_SNAP_ORIGIN || "local:http://localhost:8080";

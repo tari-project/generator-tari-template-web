@@ -28,7 +28,6 @@ import {useState, useEffect} from "react";
 import {Error} from "@mui/icons-material";
 import {getSubstate, listSubstates} from "../../wallet.ts";
 import {Alert, CircularProgress} from "@mui/material";
-import {Settings} from "../home/SettingsForm.tsx";
 
 import {SubstatesGetResponse} from "@tariproject/wallet_jrpc_client";
 import useTariProvider from "../../store/provider.ts";
@@ -71,7 +70,7 @@ function Substates() {
             getSubstate(provider, selectedComponent).then(
                 substate => {
                     // TODO: fix interface for tarijs
-                    setLoadedComponent(substate as SubstatesGetResponse | null);
+                    setLoadedComponent(substate as unknown as SubstatesGetResponse | null);
                 }
             );
         } else {
