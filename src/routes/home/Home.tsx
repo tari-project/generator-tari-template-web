@@ -78,10 +78,10 @@ function Home() {
             });
 
         const getBadges = wallet.listSubstates(provider, null, "Resource")
-            .then(substates => {
+            .then(resp => {
                 setBadges(
                     // Best guess :/
-                    substates
+                    resp.substates
                         .filter(s => !!s.substate_id.NonFungible)
                         .map(s => s.substate_id.NonFungible.resource_address)
                 );
@@ -94,10 +94,10 @@ function Home() {
                 ? wallet.listSubstates(provider, settings.template, "Component")
                 : Promise.resolve(null)
         )
-            .then(substates => {
-                if (substates?.length) {
+            .then(resp => {
+                if (resp?.substates?.length) {
                     setComponents(
-                        substates
+                        resp.substates
                             .filter(s => !!s.substate_id.Component)
                             .map(s => s.substate_id.Component)
                     );
