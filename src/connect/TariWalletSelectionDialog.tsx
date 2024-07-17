@@ -12,12 +12,13 @@ import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import {TariWalletDaemonConnectDialog} from './TariWalletDaemonConnectDialog';
-import { MetamaskTariProvider, TariPermissions, TariProvider } from '@tariproject/tarijs';
-import { TariPermissionKeyList, TariPermissionAccountInfo, TariPermissionTransactionsGet, TariPermissionSubstatesRead, TariPermissionTemplatesRead, TariPermissionTransactionSend } from '@tariproject/tarijs/dist/providers/wallet_daemon';
-
+import { MetamaskTariProvider, TariPermissions, TariProvider, WalletConnectTariProvider } from '@tariproject/tarijs/src';
+import { TariPermissionKeyList, TariPermissionAccountInfo, TariPermissionTransactionsGet, TariPermissionSubstatesRead, TariPermissionTemplatesRead, TariPermissionTransactionSend } from '@tariproject/tarijs/src/providers/wallet_daemon/';
+import WalletConnectLogo from './content/walletconnect-logo.svg';
 
 const SIGNALING_SERVER_URL = import.meta.env.VITE_SIGNALING_SERVER_ADDRESS || "http://localhost:9100";
 const SNAP_ID = import.meta.env.VITE_SNAP_ORIGIN || "local:http://localhost:8080";
+const WALLET_CONNECT_PROJECT_ID = import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID || null;
 
 // Minimal permissions for the example site
 // But each application will have different permission needs
@@ -59,7 +60,15 @@ export function TariWalletSelectionDialog(props: WalletSelectionProps) {
     handleClose();
   };
 
+  const onWalletConnectClick = async () => {
+    const projectId = WALLET_CONNECT_PROJECT_ID;
+    console.log({projectId});
 
+    const walletConnectProvider = new WalletConnectTariProvider(projectId);
+    await walletConnectProvider.connect();
+    onConnected(walletConnectProvider);
+    handleClose();
+  };
 
   return (
     <Dialog fullWidth={true} onClose={handleClose} open={open}>
@@ -83,6 +92,10 @@ export function TariWalletSelectionDialog(props: WalletSelectionProps) {
           <Grid item xs={4}>
             <WalletConnectionMethodCard img={MetamaskLogo} text='MetaMask'
                                         callback={onMetamaskClick}></WalletConnectionMethodCard>
+          </Grid>
+          <Grid item xs={4}>
+            <WalletConnectionMethodCard img={WalletConnectLogo} text='WalletConnect'
+                                        callback={onWalletConnectClick}></WalletConnectionMethodCard>
           </Grid>
         </Grid>
       </Box>
