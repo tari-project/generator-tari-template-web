@@ -62,12 +62,10 @@ export function TariWalletSelectionDialog(props: WalletSelectionProps) {
 
   const onWalletConnectClick = async () => {
     const projectId = WALLET_CONNECT_PROJECT_ID;
-    console.log({projectId});
-
     const walletConnectProvider = new WalletConnectTariProvider(projectId);
-    await walletConnectProvider.connect();
-    onConnected(walletConnectProvider);
     handleClose();
+    await walletConnectProvider.connect();
+    onConnected(walletConnectProvider);  
   };
 
   return (

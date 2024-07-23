@@ -6,7 +6,7 @@ import {
     Arg,
 } from "@tariproject/wallet_jrpc_client";
 
-import { TariProvider, MetamaskTariProvider, WalletDaemonTariProvider, TransactionStatus, SubmitTransactionRequest } from "@tariproject/tarijs";
+import { TariProvider, MetamaskTariProvider, WalletDaemonTariProvider, TransactionStatus, SubmitTransactionRequest, WalletConnectTariProvider } from "@tariproject/tarijs";
 
 export async function getTemplateDefinition<T extends TariProvider>(
     provider: T,
@@ -40,6 +40,10 @@ export async function createFreeTestCoins<T extends TariProvider>(provider: T) {
         case "WalletDaemon":
             const walletProvider = provider as unknown as WalletDaemonTariProvider;
             await walletProvider.createFreeTestCoins();
+            break;
+        case "WalletConnect":
+            const wcProvider = provider as unknown as WalletConnectTariProvider;
+            await wcProvider.createFreeTestCoins();
             break;
         case "Metamask":
             const metamaskProvider = provider as unknown as MetamaskTariProvider;
