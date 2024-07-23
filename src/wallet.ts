@@ -24,10 +24,7 @@ export async function listSubstates<T extends TariProvider>(
     if (provider === null) {
         throw new Error('Provider is not initialized');
     }
-    if (provider.providerName !== "WalletDaemon") {
-        throw new Error(`Unsupported provider ${provider.providerName}`);
-    }
-    const substates = await (provider as unknown as WalletDaemonTariProvider).listSubstates(
+    const substates = await provider.listSubstates(
         template,
         substateType
     );

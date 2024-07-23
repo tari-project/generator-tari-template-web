@@ -51,9 +51,9 @@ function Substates() {
     useEffect(() => {
         if (settings) {
             listSubstates(provider, settings.template, "Component")
-                .then(substates => {
+                .then(resp => {
                     setComponents(
-                        substates
+                        resp.substates
                             .filter(s => !!s.substate_id.Component)
                             .map(s => s.substate_id.Component)
                     );
