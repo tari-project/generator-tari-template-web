@@ -21,7 +21,7 @@
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import { create } from "zustand";
-import { TariProvider } from "@tariproject/tarijs";
+import { TariProvider } from "@tari-project/tarijs";
 
 export interface ProviderStore<TProvider extends TariProvider> {
     provider: TProvider | null,

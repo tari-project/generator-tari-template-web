@@ -4,9 +4,9 @@ import {
     Instruction,
     SubstateType,
     Arg,
-} from "@tariproject/wallet_jrpc_client";
+} from "@tari-project/wallet_jrpc_client";
 
-import { TariProvider, MetamaskTariProvider, WalletDaemonTariProvider, TransactionStatus, SubmitTransactionRequest, WalletConnectTariProvider } from "@tariproject/tarijs";
+import { TariProvider, MetamaskTariProvider, WalletDaemonTariProvider, TransactionStatus, SubmitTransactionRequest, WalletConnectTariProvider } from "@tari-project/tarijs";
 
 export async function getTemplateDefinition<T extends TariProvider>(
     provider: T,

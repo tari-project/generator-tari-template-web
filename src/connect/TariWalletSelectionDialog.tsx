@@ -12,8 +12,8 @@ import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import {TariWalletDaemonConnectDialog} from './TariWalletDaemonConnectDialog';
-import { MetamaskTariProvider, TariPermissions, TariProvider, WalletConnectTariProvider } from '@tariproject/tarijs/src';
-import { TariPermissionKeyList, TariPermissionAccountInfo, TariPermissionTransactionsGet, TariPermissionSubstatesRead, TariPermissionTemplatesRead, TariPermissionTransactionSend } from '@tariproject/tarijs/src/providers/wallet_daemon/';
+import { MetamaskTariProvider, TariPermissions, TariProvider, WalletConnectTariProvider } from '@tari-project/tarijs/src';
+import { TariPermissionKeyList, TariPermissionAccountInfo, TariPermissionTransactionsGet, TariPermissionSubstatesRead, TariPermissionTemplatesRead, TariPermissionTransactionSend } from '@tari-project/tarijs/src/providers/wallet_daemon/';
 import WalletConnectLogo from './content/walletconnect-logo.svg';
 
 const SIGNALING_SERVER_URL = import.meta.env.VITE_SIGNALING_SERVER_ADDRESS || "http://localhost:9100";
