@@ -13,15 +13,15 @@
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.3",
     "@mui/x-data-grid": "^5.17.17",
-    "@tariproject/tarijs": "^0.1.18",
+    "@tariproject/tarijs": "../forked/tari.js",
     "@tariproject/typescript-bindings": "^1.0.1",
     "@tariproject/wallet_jrpc_client": "^1.0.5",
+    "qrcode.react": "3.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.9.0",
     "react-router-dom": "^6.4.3",
     "use-react-router-breadcrumbs": "^4.0.1",
-    "qrcode.react": "3.1.0",
     "zustand": "4.5.1"
   },
   "devDependencies": {

@@ -32,7 +32,7 @@ export const breadcrumbRoutes = [
   {
     label: "Home",
     path: "/",
-    dynamic: false
+    dynamic: false,
   },
   {
     label: "Substates",
@@ -42,8 +42,8 @@ export const breadcrumbRoutes = [
   {
     label: "Error",
     path: "*",
-    dynamic: false
-  }
+    dynamic: false,
+  },
 ];
 export default function App() {
   return (
@@ -52,7 +52,7 @@ export default function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="substates" element={<Substates />} />
-          <Route path="*" element={<ErrorPage />} />
+          {/* <Route path="*" element={<ErrorPage />} /> */}
         </Route>
       </Routes>
     </>

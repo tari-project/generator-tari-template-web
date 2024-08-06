@@ -22,55 +22,55 @@
 
 import "./Home.css";
 import Button from "@mui/material/Button";
-import {FormLabel, TextField} from "@mui/material";
-import {useState} from "react";
+import { useState } from "react";
 import Grid from "@mui/material/Grid";
 import useSettings from "../../store/settings.ts";
+import TextField from "@mui/material/TextField";
 
 interface Props {
-    settings: Settings | null;
-    onSave: (settings: Settings) => void;
+  settings: Settings | null;
+  onSave: (settings: Settings) => void;
 }
 
 export interface Settings {
-    template: string | null;
+  template: string | null;
 }
 
-
 function SettingsForm(_props: Props) {
-    const {settings, setSettings} = useSettings();
+  const { settings, setSettings } = useSettings();
 
-    const [currentSettings, setCurrentSettings] = useState(settings);
+  const [currentSettings, setCurrentSettings] = useState(settings);
 
-    return (
-        <form
-            onSubmit={evt => {
-                evt.preventDefault();
-                setSettings(currentSettings);
-            }}
-        >
-            <Grid item xs={12} md={12} lg={12}>
-                <FormLabel htmlFor="template">Template ID</FormLabel>
-                <TextField
-                    id="template"
-                    name="template ID"
-                    placeholder="Template ID"
-                    onChange={evt =>
-                        setCurrentSettings({
-                            ...currentSettings,
-                            template: evt.target.value
-                        })
-                    }
-                    value={currentSettings.template || ""}
-                />
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-                <Button type="submit" disabled={settings === currentSettings}>
-                    Save
-                </Button>
-            </Grid>
-        </form>
-    );
+  return (
+    <form
+      onSubmit={(evt) => {
+        evt.preventDefault();
+        setSettings(currentSettings);
+      }}
+    >
+      <Grid item xs={12} md={12} lg={12} justifyContent={"center"}>
+        {/* <FormLabel htmlFor="template">Template address</FormLabel> */}
+        <TextField
+          id="template"
+          label="Template Address"
+          name="template ID"
+          helperText="Template addresses can be checked here: http://localhost:18006/templates"
+          onChange={(evt) =>
+            setCurrentSettings({
+              ...currentSettings,
+              template: evt.target.value,
+            })
+          }
+          value={currentSettings.template || ""}
+        />
+      </Grid>
+      <Grid item xs={12} md={12} lg={12}>
+        <Button type="submit" disabled={settings === currentSettings}>
+          Save
+        </Button>
+      </Grid>
+    </form>
+  );
 }
 
 export default SettingsForm;
