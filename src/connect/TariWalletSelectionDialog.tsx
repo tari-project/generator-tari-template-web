@@ -12,9 +12,9 @@ import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import {TariWalletDaemonConnectDialog} from './TariWalletDaemonConnectDialog';
-import { MetamaskTariProvider, TariPermissions, TariProvider, WalletConnectTariProvider } from '@tari-project/tarijs/src';
-import { TariPermissionKeyList, TariPermissionAccountInfo, TariPermissionTransactionsGet, TariPermissionSubstatesRead, TariPermissionTemplatesRead, TariPermissionTransactionSend } from '@tari-project/tarijs/src/providers/wallet_daemon/';
 import WalletConnectLogo from './content/walletconnect-logo.svg';
+import { MetamaskTariProvider, TariPermissions, TariProvider, WalletConnectTariProvider } from '@tari-project/tarijs';
+import { TariPermissionAccountInfo, TariPermissionKeyList, TariPermissionSubstatesRead, TariPermissionTemplatesRead, TariPermissionTransactionSend, TariPermissionTransactionsGet } from '@tari-project/tarijs/dist/providers/wallet_daemon';
 
 const SIGNALING_SERVER_URL = import.meta.env.VITE_SIGNALING_SERVER_ADDRESS || "http://localhost:9100";
 const SNAP_ID = import.meta.env.VITE_SNAP_ORIGIN || "local:http://localhost:8080";
