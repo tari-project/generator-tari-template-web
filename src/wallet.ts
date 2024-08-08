@@ -28,6 +28,12 @@ export async function listSubstates<T extends TariProvider>(
   template: string | null,
   substateType: SubstateType | null
 ) {
+  console.log(
+    "wallet list subst",
+    provider?.providerName,
+    template,
+    substateType
+  );
   if (provider === null) {
     throw new Error("Provider is not initialized");
   }
@@ -37,6 +43,7 @@ export async function listSubstates<T extends TariProvider>(
     null,
     null
   );
+  console.log("wallet list subst", substates);
   return substates;
 }
 

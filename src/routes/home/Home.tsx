@@ -25,37 +25,57 @@ import { StyledPaper } from "../../components/StyledComponents";
 import Grid from "@mui/material/Grid";
 import SecondaryHeading from "../../components/SecondaryHeading";
 import { FinalizeResult, TemplateDef } from "@tariproject/wallet_jrpc_client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import SettingsForm, { Settings } from "./SettingsForm.tsx";
 import CallTemplateForm from "../../components/CallTemplateForm.tsx";
-import { Error } from "@mui/icons-material";
+import { AccountBalance, Error } from "@mui/icons-material";
 import * as wallet from "../../wallet.ts";
 import { Alert, Box, CircularProgress, Typography } from "@mui/material";
-import * as React from "react";
 import Button from "@mui/material/Button";
 import useSettings from "../../store/settings.ts";
 import useTariProvider from "../../store/provider.ts";
 import { Account } from "@tariproject/tarijs";
+import { AccountsGetBalancesResponse } from "@tariproject/wallet_jrpc_client";
 
 function Home() {
   const { settings, setSettings } = useSettings();
   const { provider } = useTariProvider();
 
   const [account, setAccount] = useState<Account>();
+  const [accountBalances, setAccountsBalances] =
+    useState<AccountsGetBalancesResponse>();
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [components, setComponents] = useState<string[]>([]);
+  const [components, setComponents] = useState<string[]>([
+    "component_e1263a8f6fd826bb3d8482bd84a7f6eef1ddb5db2b9b43034d554c34",
+  ]);
   const [selectedComponent, setSelectedComponent] = useState<string | null>(
     null
   );
   const [templateDefinition, setTemplateDefinition] =
     useState<TemplateDef | null>(null);
-  const [badges, setBadges] = useState<string[]>([]);
+  const [badges, setBadges] = useState<string[]>([
+    "resource_e1263a8f6fd826bb3d8482bd84a7f6eef1ddb5db2fa21b9b3c79e39a",
+  ]);
   const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<{
     index: number;
     result: FinalizeResult | null;
   } | null>(null);
+
+  const onRefreshBalances = useCallback(async () => {
+    console.log("=== account balances update ===");
+    try {
+      if (!account || !provider) return;
+      const accountBalances = await provider.getAccountBalances(
+        account.address
+      );
+      console.log(accountBalances);
+      setAccountsBalances(accountBalances);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [account, provider]);
 
   const onSaveSettings = (settings: Settings) => {
     localStorage.setItem("settings", JSON.stringify(settings));
@@ -65,10 +85,12 @@ function Home() {
   console.log("com", components);
   console.log("bad", badges);
   console.log("set is loading", isLoading);
+
   useEffect(() => {
     if (!provider) {
       return;
     }
+    console.log("dupa");
     const getTemplateDef = (
       settings.template
         ? wallet.getTemplateDefinition(provider, settings.template)
@@ -79,16 +101,17 @@ function Home() {
         console.log("settemplate error", e);
         setError(e.message);
       });
+    console.log("dupa2");
 
     const getBadges = wallet
-      .listSubstates(provider, null, "Resource")
+      .listSubstates(provider, settings.template, "Resource")
       .then((resp) => {
         console.log("badges", resp);
         setBadges(
           // Best guess :/
           resp.substates
-            .filter((s) => !!s.substate_id.NonFungible)
-            .map((s) => s.substate_id.NonFungible.resource_address)
+            .filter((s) => !!s.substate_id)
+            .map((s) => s.substate_id)
         );
       })
       .catch((e) => {
@@ -96,6 +119,7 @@ function Home() {
         setError(e.message);
       });
 
+    console.log("dupa3");
     const getComponents = (
       settings.template
         ? wallet.listSubstates(provider, settings.template, "Component")
@@ -154,6 +178,7 @@ function Home() {
         settings={settings}
         setSettings={onSaveSettings}
         account={account}
+        onRefreshBalances={onRefreshBalances}
       >
         {provider ? (
           <pre>Please add a template address to settings</pre>
@@ -248,6 +273,7 @@ function Home() {
         await wallet.createFreeTestCoins(provider);
       }}
       setSettings={onSaveSettings}
+      onRefreshBalances={onRefreshBalances}
       account={account}
     >
       {isLoading ? <CircularProgress /> : null}
@@ -265,6 +291,7 @@ interface LayoutProps {
   settings: Settings | null;
   setSettings: (settings: Settings) => void;
   onCreateFreeTestCoins?: () => void;
+  onRefreshBalances?: () => void;
   children: React.ReactNode;
   account?: Account;
 }
@@ -274,6 +301,7 @@ function HomeLayout({
   settings,
   setSettings,
   onCreateFreeTestCoins,
+  onRefreshBalances,
   children,
   account,
 }: LayoutProps) {
@@ -286,6 +314,13 @@ function HomeLayout({
         <StyledPaper>
           {account ? (
             <Box sx={{ width: "100%" }}>
+              <Button
+                variant="contained"
+                sx={{ width: "auto" }}
+                onClick={onRefreshBalances}
+              >
+                Refresh account balances
+              </Button>
               <Typography variant="body1">Id: {account.account_id}</Typography>
               <Typography variant="body1">
                 Address: {account.address}

@@ -100,6 +100,8 @@ export function TariWalletSelectionDialog(props: WalletSelectionProps) {
               text="Tari Universe"
               callback={onTariUniverseClick}
             ></WalletConnectionMethodCard>
+          </Grid>
+          <Grid item xs={4}>
             <WalletConnectionMethodCard
               img={TariLogo}
               text="Tari Wallet Deamon"
