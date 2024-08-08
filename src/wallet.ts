@@ -26,7 +26,9 @@ export async function listSubstates<T extends TariProvider>(
     }
     const substates = await provider.listSubstates(
         template,
-        substateType
+        substateType,
+        null,
+        null
     );
     return substates;
 }

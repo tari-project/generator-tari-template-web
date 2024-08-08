@@ -54,8 +54,7 @@ function Substates() {
                 .then(resp => {
                     setComponents(
                         resp.substates
-                            .filter(s => !!s.substate_id.Component)
-                            .map(s => s.substate_id.Component)
+                            .map(s => s.substate_id)
                     );
                     setIsLoading(false);
                 })

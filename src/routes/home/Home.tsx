@@ -82,8 +82,7 @@ function Home() {
                 setBadges(
                     // Best guess :/
                     resp.substates
-                        .filter(s => !!s.substate_id.NonFungible)
-                        .map(s => s.substate_id.NonFungible.resource_address)
+                        .map(s => s.substate_id)
                 );
             })
             .catch(e => {
@@ -98,8 +97,7 @@ function Home() {
                 if (resp?.substates?.length) {
                     setComponents(
                         resp.substates
-                            .filter(s => !!s.substate_id.Component)
-                            .map(s => s.substate_id.Component)
+                            .map(s => s.substate_id)
                     );
                 } else {
                     setComponents([]);
