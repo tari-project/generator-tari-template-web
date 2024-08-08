@@ -4,9 +4,9 @@ import {
     Instruction,
     SubstateType,
     Arg,
-} from "@tariproject/wallet_jrpc_client";
+} from "@tari-project/wallet_jrpc_client";
 
-import { TariProvider, MetamaskTariProvider, WalletDaemonTariProvider, TransactionStatus, SubmitTransactionRequest } from "@tariproject/tarijs";
+import { TariProvider, MetamaskTariProvider, WalletDaemonTariProvider, TransactionStatus, SubmitTransactionRequest, WalletConnectTariProvider } from "@tari-project/tarijs";
 
 export async function getTemplateDefinition<T extends TariProvider>(
     provider: T,
@@ -26,7 +26,9 @@ export async function listSubstates<T extends TariProvider>(
     }
     const substates = await provider.listSubstates(
         template,
-        substateType
+        substateType,
+        null,
+        null
     );
     return substates;
 }
@@ -37,6 +39,10 @@ export async function createFreeTestCoins<T extends TariProvider>(provider: T) {
         case "WalletDaemon":
             const walletProvider = provider as unknown as WalletDaemonTariProvider;
             await walletProvider.createFreeTestCoins();
+            break;
+        case "WalletConnect":
+            const wcProvider = provider as unknown as WalletConnectTariProvider;
+            await wcProvider.createFreeTestCoins();
             break;
         case "Metamask":
             const metamaskProvider = provider as unknown as MetamaskTariProvider;

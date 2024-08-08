@@ -24,7 +24,7 @@ import "./Home.css";
 import {StyledPaper} from "../../components/StyledComponents";
 import Grid from "@mui/material/Grid";
 import SecondaryHeading from "../../components/SecondaryHeading";
-import {FinalizeResult, TemplateDef} from "@tariproject/wallet_jrpc_client";
+import {FinalizeResult, TemplateDef} from "@tari-project/wallet_jrpc_client";
 import {useState, useEffect} from "react";
 import SettingsForm, {Settings} from "./SettingsForm.tsx";
 import CallTemplateForm from "../../components/CallTemplateForm.tsx";
@@ -82,8 +82,7 @@ function Home() {
                 setBadges(
                     // Best guess :/
                     resp.substates
-                        .filter(s => !!s.substate_id.NonFungible)
-                        .map(s => s.substate_id.NonFungible.resource_address)
+                        .map(s => s.substate_id)
                 );
             })
             .catch(e => {
@@ -98,8 +97,7 @@ function Home() {
                 if (resp?.substates?.length) {
                     setComponents(
                         resp.substates
-                            .filter(s => !!s.substate_id.Component)
-                            .map(s => s.substate_id.Component)
+                            .map(s => s.substate_id)
                     );
                 } else {
                     setComponents([]);

@@ -26,7 +26,7 @@ import { FormLabel, TextField, Select, MenuItem } from "@mui/material";
 import { useState } from "react";
 import Grid from "@mui/material/Grid";
 import SecondaryHeading from "./SecondaryHeading.tsx";
-import { FunctionDef } from "@tariproject/wallet_jrpc_client";
+import { FunctionDef } from "@tari-project/wallet_jrpc_client";
 
 interface Props {
   func: FunctionDef;
