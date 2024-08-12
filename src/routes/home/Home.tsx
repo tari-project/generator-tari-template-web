@@ -63,7 +63,6 @@ function Home() {
   } | null>(null);
 
   const onRefreshBalances = useCallback(async () => {
-    console.log("=== account balances update ===");
     try {
       if (!account || !provider) return;
       const accountBalances = await provider.getAccountBalances(
@@ -80,17 +79,11 @@ function Home() {
     localStorage.setItem("settings", JSON.stringify(settings));
     setSettings(settings);
   };
-  console.log("set is loading", isLoading);
-  console.log("templ", templateDefinition);
-  console.log("com", components);
-  console.log("bad", badges);
-  console.log("balances", accountBalances);
 
   useEffect(() => {
     if (!provider) {
       return;
     }
-    console.log("dupa");
     const getTemplateDef = (
       settings.template
         ? wallet.getTemplateDefinition(provider, settings.template)
@@ -98,49 +91,31 @@ function Home() {
     )
       .then(setTemplateDefinition)
       .catch((e) => {
-        console.log("settemplate error", e);
         setError(e.message);
       });
-    console.log("dupa2");
 
     const getBadges = wallet
       .listSubstates(provider, null, "Resource")
       .then((resp) => {
-        console.log("badges", resp);
-        setBadges(
-          // Best guess :/
-          resp.substates
-            // .filter((s) => !!s.substate_id)
-            .map((s) => s.substate_id)
-        );
+        setBadges(resp.substates.map((s) => s.substate_id));
       })
       .catch((e) => {
-        console.log("getbadges error", e);
         setError(e.message);
       });
 
-    console.log("dupa3");
     const getComponents = (
       settings.template
         ? wallet.listSubstates(provider, settings.template, "Component")
         : Promise.resolve(null)
     )
       .then((resp) => {
-        console.log("comp response", resp);
         if (resp?.substates?.length) {
-          setComponents(
-            resp.substates
-              // .filter((s) => !!s.substate_id)
-              .map((s) => s.substate_id)
-          );
+          setComponents(resp.substates.map((s) => s.substate_id));
         } else {
           setComponents([]);
         }
       })
       .catch((e) => {
-        console.log("get comp response");
-        console.log("getcomponents error", e);
-
         setError(e.message);
       });
 
@@ -160,7 +135,6 @@ function Home() {
         setAccount(resp);
       })
       .catch((e) => {
-        console.log("setaccount error", e);
         setError(e.message);
       });
   }, [provider]);
@@ -220,7 +194,7 @@ function Home() {
               .then((resp) => {
                 setLastResult({
                   index: i,
-                  result: resp.result as FinalizeResult,
+                  result: resp?.result as unknown as FinalizeResult, //TODO fix types
                 });
               })
               .catch((e) => {
