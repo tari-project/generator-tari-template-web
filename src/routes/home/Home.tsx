@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 //  Copyright 2022. The Tari Project
 //
 //  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -24,18 +26,18 @@ import "./Home.css";
 import { StyledPaper } from "../../components/StyledComponents";
 import Grid from "@mui/material/Grid";
 import SecondaryHeading from "../../components/SecondaryHeading";
-import { FinalizeResult, TemplateDef } from "@tariproject/wallet_jrpc_client";
+import { FinalizeResult, TemplateDef } from "@tari-project/wallet_jrpc_client";
 import { useState, useEffect, useCallback } from "react";
 import SettingsForm, { Settings } from "./SettingsForm.tsx";
 import CallTemplateForm from "../../components/CallTemplateForm.tsx";
-import { AccountBalance, Error } from "@mui/icons-material";
+import { Error } from "@mui/icons-material";
 import * as wallet from "../../wallet.ts";
 import { Alert, Box, CircularProgress, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import useSettings from "../../store/settings.ts";
 import useTariProvider from "../../store/provider.ts";
-import { Account } from "@tariproject/tarijs";
-import { AccountsGetBalancesResponse } from "@tariproject/wallet_jrpc_client";
+import { Account } from "@tari-project/tarijs";
+import { AccountsGetBalancesResponse } from "@tari-project/wallet_jrpc_client";
 
 function Home() {
   const { settings, setSettings } = useSettings();
@@ -46,17 +48,13 @@ function Home() {
     useState<AccountsGetBalancesResponse>();
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [components, setComponents] = useState<string[]>([
-    "component_e1263a8f6fd826bb3d8482bd84a7f6eef1ddb5db2b9b43034d554c34",
-  ]);
+  const [components, setComponents] = useState<string[]>([]);
   const [selectedComponent, setSelectedComponent] = useState<string | null>(
     null
   );
   const [templateDefinition, setTemplateDefinition] =
     useState<TemplateDef | null>(null);
-  const [badges, setBadges] = useState<string[]>([
-    "resource_e1263a8f6fd826bb3d8482bd84a7f6eef1ddb5db2fa21b9b3c79e39a",
-  ]);
+  const [badges, setBadges] = useState<string[]>([]);
   const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<{
     index: number;
@@ -81,10 +79,11 @@ function Home() {
     localStorage.setItem("settings", JSON.stringify(settings));
     setSettings(settings);
   };
+  console.log("set is loading", isLoading);
   console.log("templ", templateDefinition);
   console.log("com", components);
   console.log("bad", badges);
-  console.log("set is loading", isLoading);
+  console.log("balances", accountBalances);
 
   useEffect(() => {
     if (!provider) {
@@ -104,13 +103,13 @@ function Home() {
     console.log("dupa2");
 
     const getBadges = wallet
-      .listSubstates(provider, settings.template, "Resource")
+      .listSubstates(provider, null, "Resource")
       .then((resp) => {
         console.log("badges", resp);
         setBadges(
           // Best guess :/
           resp.substates
-            .filter((s) => !!s.substate_id)
+            // .filter((s) => !!s.substate_id)
             .map((s) => s.substate_id)
         );
       })
@@ -130,7 +129,7 @@ function Home() {
         if (resp?.substates?.length) {
           setComponents(
             resp.substates
-              .filter((s) => !!s.substate_id)
+              // .filter((s) => !!s.substate_id)
               .map((s) => s.substate_id)
           );
         } else {

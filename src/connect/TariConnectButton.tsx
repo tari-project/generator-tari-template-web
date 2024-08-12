@@ -4,11 +4,7 @@ import Button from "@mui/material/Button";
 import TariLogoWhite from "./content/tari-logo-white.svg";
 import { TariWalletSelectionDialog } from "./TariWalletSelectionDialog";
 import useTariProvider from "../store/provider.ts";
-<<<<<<< Updated upstream
-import { TariProvider } from "@tariproject/tarijs";
-=======
 import { TariProvider } from "@tari-project/tarijs";
->>>>>>> Stashed changes
 
 interface Props {
   onConnected?: (provider: TariProvider) => void;

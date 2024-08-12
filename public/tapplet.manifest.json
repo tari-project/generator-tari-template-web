@@ -1,12 +1,12 @@
 {
-  "id": "@MCozhusheck/faucet-tapplet",
-  "name": "faucet-tapplet",
+  "id": "@tariproject/template-web",
+  "name": "@tariproject/template-web",
   "version": "0.0.1",
-  "displayName": "Faucet tapplet",
+  "displayName": "Tari Template Web",
   "status": "WIP",
   "about": {
-    "summary": "Faucet testing",
-    "description": "This is the simplest example of a faucet tapplet for testing purposes."
+    "summary": "Testing",
+    "description": "This is the Tari Template web tapplet for testing purposes."
   },
   "design": {
     "logoPath": "./dist/logo.svg",
@@ -14,13 +14,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/MCozhusheck/faucet-tapplet.git"
+    "url": "https://github.com/tari-project/tari-template-web.git"
   },
   "source": {
     "location": {
       "npm": {
-        "packageName": "faucet-tapplet",
-        "registry": "https://registry.npmjs.org/faucet-tapplet"
+        "packageName": "tariswap-tapplet",
+        "registry": "https://registry.npmjs.org/"
       }
     }
   },

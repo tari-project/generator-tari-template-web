@@ -29,7 +29,7 @@ import { Error } from "@mui/icons-material";
 import { getSubstate, listSubstates } from "../../wallet.ts";
 import { Alert, CircularProgress } from "@mui/material";
 
-import { SubstatesGetResponse } from "@tariproject/wallet_jrpc_client";
+import { SubstatesGetResponse } from "@tari-project/wallet_jrpc_client";
 import useTariProvider from "../../store/provider.ts";
 import useSettings from "../../store/settings.ts";
 
@@ -52,8 +52,8 @@ function Substates() {
         .then((resp) => {
           setComponents(
             resp.substates
-              .filter((s) => !!s.substate_id.Component)
-              .map((s) => s.substate_id.Component)
+              // .filter((s) => !!s.substate_id.Component)
+              .map((s) => s.substate_id)
           );
           setIsLoading(false);
         })
@@ -61,7 +61,7 @@ function Substates() {
           setError(e.message);
         });
     }
-  }, [settings]);
+  }, [provider, settings]);
 
   useEffect(() => {
     if (selectedComponent && provider) {

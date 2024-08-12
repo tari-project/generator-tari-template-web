@@ -26,7 +26,7 @@ import { FormLabel, TextField, Select, MenuItem } from "@mui/material";
 import { useState } from "react";
 import Grid from "@mui/material/Grid";
 import SecondaryHeading from "./SecondaryHeading.tsx";
-import { FunctionDef } from "@tariproject/wallet_jrpc_client";
+import { FunctionDef } from "@tari-project/wallet_jrpc_client";
 
 interface Props {
   func: FunctionDef;
@@ -49,7 +49,7 @@ function CallTemplateForm(props: Props) {
     onBadgeChange,
     components,
     selectedComponent,
-    onComponentChange
+    onComponentChange,
   } = props;
   const [data, setData] = useState({});
 
@@ -61,10 +61,12 @@ function CallTemplateForm(props: Props) {
   return (
     <>
       <SecondaryHeading>
-        <pre>{func.name} {isMethod ? "method" : "function"}</pre>
+        <pre>
+          {func.name} {isMethod ? "method" : "function"}
+        </pre>
       </SecondaryHeading>
       <form
-        onSubmit={evt => {
+        onSubmit={(evt) => {
           evt.preventDefault();
           onCall(data);
         }}
@@ -96,7 +98,7 @@ function CallTemplateForm(props: Props) {
               key={i}
               disabled={isMethod && !hasComponents}
               argName={arg.name}
-              onChange={value => setData({ ...data, [arg.name]: value })}
+              onChange={(value) => setData({ ...data, [arg.name]: value })}
             />
           ))}
         </Grid>
@@ -111,7 +113,7 @@ function CallTemplateForm(props: Props) {
 const TemplateTextField = ({
   argName,
   onChange,
-  disabled
+  disabled,
 }: {
   argName: string;
   onChange: (value: string) => void;
@@ -128,7 +130,7 @@ const TemplateTextField = ({
           name={argName}
           disabled={disabled}
           placeholder={argName}
-          onChange={evt => onChange(evt.target.value)}
+          onChange={(evt) => onChange(evt.target.value)}
         />
       </Grid>
     </>
@@ -140,7 +142,7 @@ const SelectField = ({
   enableSelectNone,
   value,
   items,
-  onChange
+  onChange,
 }: {
   name: string;
   enableSelectNone?: boolean;
@@ -158,11 +160,15 @@ const SelectField = ({
           name={name}
           value={value || ""}
           disabled={items.length === 0}
-          onChange={evt => onChange(evt.target.value)}
+          onChange={(evt) => onChange(evt.target.value)}
         >
-          {enableSelectNone && <MenuItem key={0} value = "">None</MenuItem>}
+          {enableSelectNone && (
+            <MenuItem key={0} value="">
+              None
+            </MenuItem>
+          )}
           {items.map((item, i) => (
-            <MenuItem key={i+1} value={item}>
+            <MenuItem key={i + 1} value={item}>
               {item}
             </MenuItem>
           ))}

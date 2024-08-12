@@ -4,7 +4,7 @@ import {
   Instruction,
   SubstateType,
   Arg,
-} from "@tariproject/wallet_jrpc_client";
+} from "@tari-project/wallet_jrpc_client";
 
 import {
   TariProvider,
@@ -13,7 +13,7 @@ import {
   TransactionStatus,
   SubmitTransactionRequest,
   TariUniverseProvider,
-} from "@tariproject/tarijs";
+} from "@tari-project/tarijs";
 
 export async function getTemplateDefinition<T extends TariProvider>(
   provider: T,
@@ -37,6 +37,7 @@ export async function listSubstates<T extends TariProvider>(
   if (provider === null) {
     throw new Error("Provider is not initialized");
   }
+  console.log("provider.listSubst");
   const substates = await provider.listSubstates(
     template,
     substateType,
