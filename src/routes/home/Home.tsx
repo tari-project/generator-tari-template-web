@@ -32,12 +32,13 @@ import SettingsForm, { Settings } from "./SettingsForm.tsx";
 import CallTemplateForm from "../../components/CallTemplateForm.tsx";
 import { Error } from "@mui/icons-material";
 import * as wallet from "../../wallet.ts";
-import { Alert, Box, CircularProgress, Typography } from "@mui/material";
+import { Alert, CircularProgress } from "@mui/material";
 import Button from "@mui/material/Button";
 import useSettings from "../../store/settings.ts";
 import useTariProvider from "../../store/provider.ts";
 import { Account } from "@tari-project/tarijs";
 import { AccountsGetBalancesResponse } from "@tari-project/wallet_jrpc_client";
+import AccountDetails from "../../components/AccountDetails.tsx";
 
 function Home() {
   const { settings, setSettings } = useSettings();
@@ -172,19 +173,24 @@ function Home() {
 
   if (!provider || !settings || !settings.template) {
     return (
-      <HomeLayout
-        error={error}
-        settings={settings}
-        setSettings={onSaveSettings}
-        account={account}
-        onRefreshBalances={onRefreshBalances}
-      >
-        {provider ? (
-          <pre>Please add a template address to settings</pre>
-        ) : (
-          <pre>Please connect your wallet</pre>
-        )}
-      </HomeLayout>
+      <>
+        <AccountDetails
+          account={account}
+          balances={accountBalances}
+          onRefreshBalances={onRefreshBalances}
+        ></AccountDetails>
+        <HomeLayout
+          error={error}
+          settings={settings}
+          setSettings={onSaveSettings}
+        >
+          {provider ? (
+            <pre>Please add a template address to settings</pre>
+          ) : (
+            <pre>Please connect your wallet</pre>
+          )}
+        </HomeLayout>
+      </>
     );
   }
 
@@ -265,23 +271,28 @@ function Home() {
   });
 
   return (
-    <HomeLayout
-      error={error}
-      settings={settings}
-      onCreateFreeTestCoins={async () => {
-        await wallet.createFreeTestCoins(provider);
-      }}
-      setSettings={onSaveSettings}
-      onRefreshBalances={onRefreshBalances}
-      account={account}
-    >
-      {isLoading ? <CircularProgress /> : null}
-      {forms?.map((form, i) => (
-        <Grid key={`form${i}`} item xs={12} md={12} lg={12}>
-          {form}
-        </Grid>
-      ))}
-    </HomeLayout>
+    <>
+      <AccountDetails
+        account={account}
+        balances={accountBalances}
+        onRefreshBalances={onRefreshBalances}
+      ></AccountDetails>
+      <HomeLayout
+        error={error}
+        settings={settings}
+        onCreateFreeTestCoins={async () => {
+          await wallet.createFreeTestCoins(provider);
+        }}
+        setSettings={onSaveSettings}
+      >
+        {isLoading ? <CircularProgress /> : null}
+        {forms?.map((form, i) => (
+          <Grid key={`form${i}`} item xs={12} md={12} lg={12}>
+            {form}
+          </Grid>
+        ))}
+      </HomeLayout>
+    </>
   );
 }
 
@@ -290,9 +301,7 @@ interface LayoutProps {
   settings: Settings | null;
   setSettings: (settings: Settings) => void;
   onCreateFreeTestCoins?: () => void;
-  onRefreshBalances?: () => void;
   children: React.ReactNode;
-  account?: Account;
 }
 
 function HomeLayout({
@@ -300,45 +309,10 @@ function HomeLayout({
   settings,
   setSettings,
   onCreateFreeTestCoins,
-  onRefreshBalances,
   children,
-  account,
 }: LayoutProps) {
   return (
     <>
-      <Grid item xs={12} md={12} lg={12}>
-        <SecondaryHeading>Account</SecondaryHeading>
-      </Grid>
-      <Grid item xs={12} md={12} lg={12}>
-        <StyledPaper>
-          {account ? (
-            <Box sx={{ width: "100%" }}>
-              <Button
-                variant="contained"
-                sx={{ width: "auto" }}
-                onClick={onRefreshBalances}
-              >
-                Refresh account balances
-              </Button>
-              <Typography variant="body1">Id: {account.account_id}</Typography>
-              <Typography variant="body1">
-                Address: {account.address}
-              </Typography>
-              <Typography variant="body1">
-                Resources list: {account.resources.length}
-              </Typography>
-
-              {account.resources.map((item) => (
-                <Typography variant="body1">
-                  Resource: {item.balance}
-                </Typography>
-              ))}
-            </Box>
-          ) : (
-            <CircularProgress />
-          )}
-        </StyledPaper>
-      </Grid>
       <Grid item sm={12} md={12} xs={12}>
         <SecondaryHeading>Template</SecondaryHeading>
       </Grid>
