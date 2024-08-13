@@ -43,16 +43,12 @@ function Home() {
   const { provider } = useTariProvider();
 
   const [account, setAccount] = useState<Account>();
-  const [accountBalances, setAccountsBalances] =
-    useState<AccountsGetBalancesResponse>();
+  const [accountBalances, setAccountsBalances] = useState<AccountsGetBalancesResponse>();
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [components, setComponents] = useState<string[]>([]);
-  const [selectedComponent, setSelectedComponent] = useState<string | null>(
-    null
-  );
-  const [templateDefinition, setTemplateDefinition] =
-    useState<TemplateDef | null>(null);
+  const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
+  const [templateDefinition, setTemplateDefinition] = useState<TemplateDef | null>(null);
   const [badges, setBadges] = useState<string[]>([]);
   const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<{
@@ -63,10 +59,7 @@ function Home() {
   const onRefreshBalances = useCallback(async () => {
     try {
       if (!account || !provider) return;
-      const accountBalances = await wallet.getAccountBalances(
-        provider,
-        account.address
-      );
+      const accountBalances = await wallet.getAccountBalances(provider, account.address);
       if (accountBalances) setAccountsBalances(accountBalances);
     } catch (e) {
       console.error(e);
@@ -83,9 +76,7 @@ function Home() {
       return;
     }
     const getTemplateDef = (
-      settings.template
-        ? wallet.getTemplateDefinition(provider, settings.template)
-        : Promise.resolve(null)
+      settings.template ? wallet.getTemplateDefinition(provider, settings.template) : Promise.resolve(null)
     )
       .then(setTemplateDefinition)
       .catch((e) => {
@@ -93,7 +84,7 @@ function Home() {
       });
 
     const getBadges = wallet
-      .listSubstates(provider, null, "Resource")
+      .listSubstates(provider, null, "Resource", null, null)
       .then((resp) => {
         setBadges(resp.substates.map((s) => s.substate_id));
       })
@@ -103,7 +94,7 @@ function Home() {
 
     const getComponents = (
       settings.template
-        ? wallet.listSubstates(provider, settings.template, "Component")
+        ? wallet.listSubstates(provider, settings.template, "Component", null, null)
         : Promise.resolve(null)
     )
       .then((resp) => {
@@ -145,11 +136,7 @@ function Home() {
 
   if (!provider) {
     return (
-      <HomeLayout
-        error={error}
-        settings={settings}
-        setSettings={onSaveSettings}
-      >
+      <HomeLayout error={error} settings={settings} setSettings={onSaveSettings}>
         <pre>Please connect your wallet</pre>
       </HomeLayout>
     );
@@ -163,11 +150,7 @@ function Home() {
           balances={accountBalances}
           onRefreshBalances={onRefreshBalances}
         ></AccountDetails>
-        <HomeLayout
-          error={error}
-          settings={settings}
-          setSettings={onSaveSettings}
-        >
+        <HomeLayout error={error} settings={settings} setSettings={onSaveSettings}>
           <pre>Please add a template address to settings</pre>
         </HomeLayout>
       </>
@@ -189,14 +172,7 @@ function Home() {
           onCall={(values) => {
             setLastResult({ index: i, result: null });
             wallet
-              .buildInstructionsAndSubmit(
-                provider,
-                settings,
-                selectedBadge,
-                selectedComponent,
-                func,
-                values
-              )
+              .buildInstructionsAndSubmit(provider, settings, selectedBadge, selectedComponent, func, values)
               .then((resp) => {
                 setLastResult({
                   index: i,
@@ -214,9 +190,7 @@ function Home() {
             {(lastResult as any).result.result.Accept ? (
               <Alert severity="success">
                 Accept:
-                <pre>
-                  {JSON.stringify((lastResult as any).result.result.Accept)}
-                </pre>
+                <pre>{JSON.stringify((lastResult as any).result.result.Accept)}</pre>
                 {lastResult.result.execution_results
                   .filter((r) => r.indexed.value !== "Null")
                   .map((r, i) => (
@@ -226,14 +200,11 @@ function Home() {
             ) : (lastResult as any).result.result.AcceptFeeRejectRest ? (
               <Alert severity="error">
                 AcceptFeeRejectRest: Error calling function:{" "}
-                {JSON.stringify(
-                  (lastResult as any).result.result.AcceptFeeRejectRest[1]
-                )}
+                {JSON.stringify((lastResult as any).result.result.AcceptFeeRejectRest[1])}
               </Alert>
             ) : (
               <Alert severity="error">
-                Error calling function:{" "}
-                {JSON.stringify((lastResult as any).result.result.Reject)}
+                Error calling function: {JSON.stringify((lastResult as any).result.result.Reject)}
               </Alert>
             )}
 
@@ -284,13 +255,7 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-function HomeLayout({
-  error,
-  settings,
-  setSettings,
-  onCreateFreeTestCoins,
-  children,
-}: LayoutProps) {
+function HomeLayout({ error, settings, setSettings, onCreateFreeTestCoins, children }: LayoutProps) {
   return (
     <>
       <Grid item sm={12} md={12} xs={12}>
@@ -304,18 +269,11 @@ function HomeLayout({
         )}
         <StyledPaper>
           {
-            <Button
-              disabled={!onCreateFreeTestCoins}
-              onClick={onCreateFreeTestCoins}
-            >
+            <Button disabled={!onCreateFreeTestCoins} onClick={onCreateFreeTestCoins}>
               Create Free Test Coins
             </Button>
           }
-          {settings ? (
-            <SettingsForm settings={settings} onSave={setSettings} />
-          ) : (
-            <CircularProgress />
-          )}
+          {settings ? <SettingsForm settings={settings} onSave={setSettings} /> : <CircularProgress />}
         </StyledPaper>
       </Grid>
       <Grid item xs={12} md={12} lg={12}>

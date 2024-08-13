@@ -8,11 +8,7 @@ import Typography from "@mui/material/Typography";
 import { QRCodeSVG } from "qrcode.react";
 import { useState, useEffect } from "react";
 import styles from "./TariWalletDaemonConnectDialog.module.css";
-import {
-  WalletDaemonTariProvider,
-  TariPermissions,
-  WalletDaemonParameters,
-} from "@tari-project/tarijs";
+import { WalletDaemonTariProvider, TariPermissions, WalletDaemonParameters } from "@tari-project/tarijs";
 
 export interface TariWalletDaemonConnectDialog {
   open: boolean;
@@ -26,9 +22,7 @@ export interface TariWalletDaemonConnectDialog {
 // TODO: hack, onConnection should ideally return the provider once it has connected
 const providerHack = { provider: null as any };
 
-export function TariWalletDaemonConnectDialog(
-  props: TariWalletDaemonConnectDialog
-) {
+export function TariWalletDaemonConnectDialog(props: TariWalletDaemonConnectDialog) {
   const { onClose, open, onConnected } = props;
 
   const [isCopied, setIsCopied] = useState(false);
@@ -75,30 +69,20 @@ export function TariWalletDaemonConnectDialog(
     <Dialog fullWidth={true} onClose={handleClose} open={open}>
       <Box sx={{ padding: 4, borderRadius: 4 }}>
         <Stack direction="row" justifyContent="space-between" spacing={2}>
-          <Typography style={{ fontSize: 24 }}>
-            Connect to your Tari Wallet Daemon
-          </Typography>
+          <Typography style={{ fontSize: 24 }}>Connect to your Tari Wallet Daemon</Typography>
           <IconButton aria-label="copy" onClick={handleClose}>
             <CloseIcon style={{ fontSize: 24 }} />
           </IconButton>
         </Stack>
         <Divider sx={{ mt: 3, mb: 1 }} variant="middle" />
         <div className={styles.tariPopupContainer}>
-          <p className={styles.tariText}>
-            Scan the QR code or copy the link below to connect your wallet
-          </p>
+          <p className={styles.tariText}>Scan the QR code or copy the link below to connect your wallet</p>
           <QRCodeSVG value={tokenUrl} />
           <div className={styles.tariBtnContainer}>
-            <button
-              className={[styles.tariBtn, styles.tariPrimaryBtn].join(" ")}
-              onClick={handleCopy}
-            >
+            <button className={[styles.tariBtn, styles.tariPrimaryBtn].join(" ")} onClick={handleCopy}>
               {isCopied ? <CheckMark /> : "Copy Link"}
             </button>
-            <button
-              className={[styles.tariBtn, styles.tariSecondaryBtn].join(" ")}
-              onClick={onClose}
-            >
+            <button className={[styles.tariBtn, styles.tariSecondaryBtn].join(" ")} onClick={onClose}>
               Close
             </button>
           </div>
@@ -110,23 +94,9 @@ export function TariWalletDaemonConnectDialog(
 
 const CheckMark = () => {
   return (
-    <svg
-      className={styles.tariCheckmark}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 52 52"
-    >
-      <circle
-        className={styles.tariCheckmarkCircle}
-        cx="26"
-        cy="26"
-        r="25"
-        fill="none"
-      />
-      <path
-        className={styles.tariCheckmarkCheck}
-        fill="none"
-        d="M14.1 27.2l7.1 7.2 16.7-16.8"
-      />
+    <svg className={styles.tariCheckmark} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+      <circle className={styles.tariCheckmarkCircle} cx="26" cy="26" r="25" fill="none" />
+      <path className={styles.tariCheckmarkCheck} fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
     </svg>
   );
 };

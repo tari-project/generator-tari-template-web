@@ -4,7 +4,7 @@ import Button from "@mui/material/Button";
 import TariLogoWhite from "./content/tari-logo-white.svg";
 import { TariWalletSelectionDialog } from "./TariWalletSelectionDialog";
 import useTariProvider from "../store/provider.ts";
-import { TariProvider } from '@tari-project/tarijs';
+import { TariProvider } from "@tari-project/tarijs";
 
 interface Props {
   onConnected?: (provider: TariProvider) => void;
@@ -32,9 +32,7 @@ export function TariConnectButton(props: Props) {
     <>
       <Button variant="contained" onClick={handleConnectClick}>
         <img width="30px" height="30px" src={TariLogoWhite} />
-        <div style={{ paddingLeft: "10px" }}>
-          {provider?.isConnected() ? "Connected" : "Connect"}
-        </div>
+        <div style={{ paddingLeft: "10px" }}>{provider?.isConnected() ? "Connected" : "Connect"}</div>
       </Button>
       <TariWalletSelectionDialog
         open={walletSelectionOpen}

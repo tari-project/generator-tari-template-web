@@ -40,15 +40,12 @@ function Substates() {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [components, setComponents] = useState<string[]>([]);
-  const [selectedComponent, setSelectedComponent] = useState<string | null>(
-    null
-  );
-  const [loadedComponent, setLoadedComponent] =
-    useState<SubstatesGetResponse | null>(null);
+  const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
+  const [loadedComponent, setLoadedComponent] = useState<SubstatesGetResponse | null>(null);
 
   useEffect(() => {
     if (settings) {
-      listSubstates(provider, settings.template, "Component")
+      listSubstates(provider, settings.template, "Component", null, null)
         .then((resp) => {
           setComponents(resp.substates.map((s) => s.substate_id));
           setIsLoading(false);
@@ -104,9 +101,7 @@ function Substates() {
           </Alert>
         )}
         <StyledPaper>
-          <pre>
-            {loadedComponent && JSON.stringify(loadedComponent.value, null, 2)}
-          </pre>
+          <pre>{loadedComponent && JSON.stringify(loadedComponent.value, null, 2)}</pre>
         </StyledPaper>
       </Grid>
     </>

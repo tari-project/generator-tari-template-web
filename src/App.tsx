@@ -52,7 +52,7 @@ export default function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="substates" element={<Substates />} />
-          {/* <Route path="*" element={<ErrorPage />} /> */}
+          <Route path="*" element={<ErrorPage />} />
         </Route>
       </Routes>
     </>

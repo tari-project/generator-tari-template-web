@@ -33,9 +33,9 @@ export default function ErrorPage() {
   console.error(error);
 
   const getErrorText = (e: ErrorType): string => {
-    let value = (e as any);
+    const value = e as any;
     return value?.message || value?.statusText || value || "Unknown error";
-  }
+  };
 
   return (
     <div
@@ -43,7 +43,7 @@ export default function ErrorPage() {
         display: "flex",
         height: "100vh",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
       }}
     >
       <Container>

@@ -20,7 +20,6 @@
 //  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import { FormLabel, TextField, Select, MenuItem } from "@mui/material";
 import { useState } from "react";
@@ -41,16 +40,8 @@ interface Props {
 }
 
 function CallTemplateForm(props: Props) {
-  const {
-    func,
-    onCall,
-    badges,
-    selectedBadge,
-    onBadgeChange,
-    components,
-    selectedComponent,
-    onComponentChange,
-  } = props;
+  const { func, onCall, badges, selectedBadge, onBadgeChange, components, selectedComponent, onComponentChange } =
+    props;
   const [data, setData] = useState({});
 
   const isMethod = func.arguments[0]?.name == "self";
