@@ -63,10 +63,11 @@ function Home() {
   const onRefreshBalances = useCallback(async () => {
     try {
       if (!account || !provider) return;
-      const accountBalances = await provider.getAccountBalances(
+      const accountBalances = await wallet.getAccountBalances(
+        provider,
         account.address
       );
-      setAccountsBalances(accountBalances);
+      if (accountBalances) setAccountsBalances(accountBalances);
     } catch (e) {
       console.error(e);
     }
@@ -142,7 +143,19 @@ function Home() {
     }
   }, [components, selectedComponent]);
 
-  if (!provider || !settings || !settings.template) {
+  if (!provider) {
+    return (
+      <HomeLayout
+        error={error}
+        settings={settings}
+        setSettings={onSaveSettings}
+      >
+        <pre>Please connect your wallet</pre>
+      </HomeLayout>
+    );
+  }
+
+  if (!settings || !settings.template) {
     return (
       <>
         <AccountDetails
@@ -155,11 +168,7 @@ function Home() {
           settings={settings}
           setSettings={onSaveSettings}
         >
-          {provider ? (
-            <pre>Please add a template address to settings</pre>
-          ) : (
-            <pre>Please connect your wallet</pre>
-          )}
+          <pre>Please add a template address to settings</pre>
         </HomeLayout>
       </>
     );

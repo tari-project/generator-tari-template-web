@@ -3,6 +3,7 @@ import {
   FunctionDef,
   SubstateType,
   Arg,
+  AccountsGetBalancesResponse,
 } from "@tari-project/wallet_jrpc_client";
 
 import {
@@ -48,7 +49,6 @@ export async function listSubstates<T extends TariProvider>(
 }
 
 export async function createFreeTestCoins<T extends TariProvider>(provider: T) {
-  console.log("createFreeTestCoins", provider.providerName);
   switch (provider.providerName) {
     case "TariUniverse": {
       const tuProvider = provider as unknown as TariUniverseProvider;
@@ -175,4 +175,38 @@ export async function createTransactionRequest(
   );
 
   return req;
+}
+
+export async function getAccountBalances<T extends TariProvider>(
+  provider: T,
+  accountAddress: string
+): Promise<AccountsGetBalancesResponse | null> {
+  switch (provider.providerName) {
+    case "TariUniverse": {
+      const tuProvider = provider as unknown as TariUniverseProvider;
+      const balance = await tuProvider.getAccountBalances(accountAddress);
+      return balance;
+    }
+    case "WalletDaemon": {
+      const walletProvider = provider as unknown as WalletDaemonTariProvider;
+      const balance = (await walletProvider.getAccountBalances(
+        accountAddress
+      )) as AccountsGetBalancesResponse;
+      return balance;
+    }
+    case "WalletConnect": {
+      // TODO add if provider interface from tari.js is updated
+      // const wcProvider = provider as unknown as WalletConnectTariProvider;
+      // await wcProvider.getAccountBalances(accountAddress)
+      return null;
+    }
+    case "Metamask": {
+      // TODO add if provider interface from tari.js is updated
+      // const metamaskProvider = provider as unknown as MetamaskTarsiProvider;
+      // await metamaskProvider.getAccountBalances(accountAddress);
+      return null;
+    }
+    default:
+      throw new Error(`Unsupported provider: ${provider.providerName}`);
+  }
 }
