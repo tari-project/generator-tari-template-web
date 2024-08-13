@@ -10,6 +10,7 @@ import {
   MetamaskTariProvider,
   WalletDaemonTariProvider,
   SubmitTransactionRequest,
+  WalletConnectTariProvider,
   TariUniverseProvider,
   TransactionBuilder,
   Amount,
@@ -47,6 +48,7 @@ export async function listSubstates<T extends TariProvider>(
 }
 
 export async function createFreeTestCoins<T extends TariProvider>(provider: T) {
+  console.log("createFreeTestCoins", provider.providerName);
   switch (provider.providerName) {
     case "TariUniverse": {
       const tuProvider = provider as unknown as TariUniverseProvider;
@@ -56,6 +58,11 @@ export async function createFreeTestCoins<T extends TariProvider>(provider: T) {
     case "WalletDaemon": {
       const walletProvider = provider as unknown as WalletDaemonTariProvider;
       await walletProvider.createFreeTestCoins();
+      break;
+    }
+    case "WalletConnect": {
+      const wcProvider = provider as unknown as WalletConnectTariProvider;
+      await wcProvider.createFreeTestCoins();
       break;
     }
     case "Metamask": {

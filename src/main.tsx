@@ -5,7 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import ErrorPage from "./routes/ErrorPage";
 import Substates from "./routes/substates";
-import { TariProvider, MetaMaskInpageProvider } from "@tariproject/tarijs";
+import { TariProvider, MetaMaskInpageProvider } from "@tari-project/tarijs";
 
 const router = createBrowserRouter([
   {

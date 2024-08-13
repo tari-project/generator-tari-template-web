@@ -50,11 +50,7 @@ function Substates() {
     if (settings) {
       listSubstates(provider, settings.template, "Component")
         .then((resp) => {
-          setComponents(
-            resp.substates
-              // .filter((s) => !!s.substate_id.Component)
-              .map((s) => s.substate_id)
-          );
+          setComponents(resp.substates.map((s) => s.substate_id));
           setIsLoading(false);
         })
         .catch((e) => {

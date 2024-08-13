@@ -1,5 +1,5 @@
 {
-  "name": "@tariproject/template-web",
+  "name": "@tari-project/template-web",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,7 +13,7 @@
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.3",
     "@mui/x-data-grid": "^5.17.17",
-    "@tari-project/tarijs": "^0.1.22",
+    "@tari-project/tarijs": "^0.1.21",
     "@tari-project/typescript-bindings": "^1.0.4",
     "@tari-project/wallet_jrpc_client": "^1.0.8",
     "@walletconnect/modal": "^2.6.2",

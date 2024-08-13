@@ -142,6 +142,13 @@ export function TariWalletSelectionDialog(props: WalletSelectionProps) {
               callback={onWalletConnectClick}
             ></WalletConnectionMethodCard>
           </Grid>
+          <Grid item xs={4}>
+            <WalletConnectionMethodCard
+              img={WalletConnectLogo}
+              text="WalletConnect"
+              callback={onWalletConnectClick}
+            ></WalletConnectionMethodCard>
+          </Grid>
         </Grid>
       </Box>
     </Dialog>
