@@ -36,7 +36,6 @@ export function TariWalletDaemonConnectDialog(
   const [tokenUrl, setTokenUrl] = useState("");
 
   const onConnection = () => {
-    console.log("wallet daemon connected");
     onConnected(providerHack.provider);
     handleClose();
   };

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 //  Copyright 2022. The Tari Project
 //
 //  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -68,7 +66,6 @@ function Home() {
       const accountBalances = await provider.getAccountBalances(
         account.address
       );
-      console.log(accountBalances);
       setAccountsBalances(accountBalances);
     } catch (e) {
       console.error(e);
@@ -131,7 +128,7 @@ function Home() {
 
     provider
       .getAccount()
-      .then((resp) => {
+      .then((resp: Account) => {
         setAccount(resp);
       })
       .catch((e) => {
@@ -194,7 +191,7 @@ function Home() {
               .then((resp) => {
                 setLastResult({
                   index: i,
-                  result: resp?.result as unknown as FinalizeResult, //TODO fix types
+                  result: resp?.result.result as FinalizeResult | null,
                 });
               })
               .catch((e) => {
