@@ -1,9 +1,14 @@
+/**
+TODO add if exports from tari.js are updated
+import { templates } from "@tari-project/tarijs";
+const { TemplateFactory } = templates; 
+ */
+
 import { TemplateFactory } from "@tari-project/tarijs/dist/templates/TemplateFactory";
 
 export class Template extends TemplateFactory {
   public fct: any;
   public method: any;
-  public deposit: any;
   constructor(
     public templateAddress: string,
     functionName?: string,

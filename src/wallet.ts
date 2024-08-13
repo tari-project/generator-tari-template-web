@@ -22,6 +22,11 @@ import {
 } from "@tari-project/tarijs";
 import { Template } from "./templates/Template.ts";
 import { SubmitTxResult } from "@tari-project/tarijs/dist/builders/types/TransactionResult";
+/** 
+//TODO add if exports from tari.js are updated
+import { templates } from "@tari-project/tarijs";
+const { AccountTemplate } = templates;
+*/
 
 export async function getTemplateDefinition<T extends TariProvider>(
   provider: T,
@@ -34,7 +39,9 @@ export async function getTemplateDefinition<T extends TariProvider>(
 export async function listSubstates<T extends TariProvider>(
   provider: T | null,
   template: string | null,
-  substateType: SubstateType | null
+  substateType: SubstateType | null,
+  limit: number | null,
+  offset: number | null
 ) {
   if (provider === null) {
     throw new Error("Provider is not initialized");
@@ -42,8 +49,8 @@ export async function listSubstates<T extends TariProvider>(
   const substates = await provider.listSubstates(
     template,
     substateType,
-    null,
-    null
+    limit,
+    offset
   );
   return substates;
 }
@@ -195,15 +202,17 @@ export async function getAccountBalances<T extends TariProvider>(
       return balance;
     }
     case "WalletConnect": {
-      // TODO add if provider interface from tari.js is updated
+      // TODO refactor if provider interface from tarijs is refactored and match the type
       // const wcProvider = provider as unknown as WalletConnectTariProvider;
-      // await wcProvider.getAccountBalances(accountAddress)
+      // const { resources } = await wcProvider.getAccount();
+      // return resources;
       return null;
     }
     case "Metamask": {
-      // TODO add if provider interface from tari.js is updated
-      // const metamaskProvider = provider as unknown as MetamaskTarsiProvider;
-      // await metamaskProvider.getAccountBalances(accountAddress);
+      // TODO refactor if provider interface from tarijs is refactored and match the type
+      // const metamaskProvider = provider as unknown as MetamaskTariProvider;
+      // const { resources } = await metamaskProvider.getAccount();
+      // return resources;
       return null;
     }
     default:
