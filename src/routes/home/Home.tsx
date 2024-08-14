@@ -21,236 +21,266 @@
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import "./Home.css";
-import {StyledPaper} from "../../components/StyledComponents";
+import { StyledPaper } from "../../components/StyledComponents";
 import Grid from "@mui/material/Grid";
 import SecondaryHeading from "../../components/SecondaryHeading";
-import {FinalizeResult, TemplateDef} from "@tari-project/wallet_jrpc_client";
-import {useState, useEffect} from "react";
-import SettingsForm, {Settings} from "./SettingsForm.tsx";
+import { FinalizeResult, TemplateDef } from "@tari-project/wallet_jrpc_client";
+import { useState, useEffect, useCallback } from "react";
+import SettingsForm, { Settings } from "./SettingsForm.tsx";
 import CallTemplateForm from "../../components/CallTemplateForm.tsx";
-import {Error} from "@mui/icons-material";
+import { Error } from "@mui/icons-material";
 import * as wallet from "../../wallet.ts";
-import {Alert, CircularProgress} from "@mui/material";
-import * as React from "react";
+import { Alert, CircularProgress } from "@mui/material";
 import Button from "@mui/material/Button";
 import useSettings from "../../store/settings.ts";
 import useTariProvider from "../../store/provider.ts";
+import { Account } from "@tari-project/tarijs";
+import { AccountsGetBalancesResponse } from "@tari-project/wallet_jrpc_client";
+import AccountDetails from "../../components/AccountDetails.tsx";
 
 function Home() {
-    const {settings, setSettings} = useSettings();
-    const {provider} = useTariProvider();
+  const { settings, setSettings } = useSettings();
+  const { provider } = useTariProvider();
 
-    const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [components, setComponents] = useState<string[]>([]);
-    const [selectedComponent, setSelectedComponent] = useState<string | null>(
-        null
-    );
-    const [
-        templateDefinition,
-        setTemplateDefinition
-    ] = useState<TemplateDef | null>(null);
-    const [badges, setBadges] = useState<string[]>([]);
-    const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
-    const [lastResult, setLastResult] = useState<{
-        index: number;
-        result: FinalizeResult | null;
-    } | null>(null);
+  const [account, setAccount] = useState<Account>();
+  const [accountBalances, setAccountsBalances] = useState<AccountsGetBalancesResponse>();
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [components, setComponents] = useState<string[]>([]);
+  const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
+  const [templateDefinition, setTemplateDefinition] = useState<TemplateDef | null>(null);
+  const [badges, setBadges] = useState<string[]>([]);
+  const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
+  const [lastResult, setLastResult] = useState<{
+    index: number;
+    result: FinalizeResult | null;
+  } | null>(null);
 
-
-    const onSaveSettings = (settings: Settings) => {
-        localStorage.setItem("settings", JSON.stringify(settings));
-        setSettings(settings);
+  const onRefreshBalances = useCallback(async () => {
+    try {
+      if (!account || !provider) return;
+      const accountBalances = await wallet.getAccountBalances(provider, account.address);
+      if (accountBalances) setAccountsBalances(accountBalances);
+    } catch (e) {
+      console.error(e);
     }
+  }, [account, provider]);
 
-    useEffect(() => {
-        if (!provider) {
-            return;
-        }
+  const onSaveSettings = (settings: Settings) => {
+    localStorage.setItem("settings", JSON.stringify(settings));
+    setSettings(settings);
+  };
 
-        const getTemplateDef = ((settings.template)
-                ? wallet.getTemplateDefinition(provider, settings.template)
-                : Promise.resolve(null)
-        )
-            .then(setTemplateDefinition)
-            .catch(e => {
-                setError(e.message);
-            });
-
-        const getBadges = wallet.listSubstates(provider, null, "Resource")
-            .then(resp => {
-                setBadges(
-                    // Best guess :/
-                    resp.substates
-                        .map(s => s.substate_id)
-                );
-            })
-            .catch(e => {
-                setError(e.message);
-            });
-
-        const getComponents = (settings.template
-                ? wallet.listSubstates(provider, settings.template, "Component")
-                : Promise.resolve(null)
-        )
-            .then(resp => {
-                if (resp?.substates?.length) {
-                    setComponents(
-                        resp.substates
-                            .map(s => s.substate_id)
-                    );
-                } else {
-                    setComponents([]);
-                }
-            })
-            .catch(e => {
-                setError(e.message);
-            });
-
-        Promise.allSettled([getBadges, getComponents, getTemplateDef]).then(
-            () => {
-                setIsLoading(false);
-            }
-        );
-    }, [settings, provider]);
-
-    useEffect(() => {
-        if (!selectedComponent) {
-            setSelectedComponent(components.length > 0 ? components[0] : null);
-        }
-    }, [components, selectedComponent]);
-
+  useEffect(() => {
     if (!provider) {
-        return <HomeLayout error={error} settings={settings} setSettings={onSaveSettings}>
-            <pre>Please connect your wallet</pre>
-        </HomeLayout>;
+      return;
     }
+    const getTemplateDef = (
+      settings.template ? wallet.getTemplateDefinition(provider, settings.template) : Promise.resolve(null)
+    )
+      .then(setTemplateDefinition)
+      .catch((e) => {
+        setError(e.message);
+      });
 
-    if (!settings || !settings.template) {
-        return <HomeLayout error={error} settings={settings} setSettings={onSaveSettings}>
-            <pre>Please add a template address to settings</pre>
-        </HomeLayout>;
-    }
+    const getBadges = wallet
+      .listSubstates(provider, null, "Resource", null, null)
+      .then((resp) => {
+        setBadges(resp.substates.map((s) => s.substate_id));
+      })
+      .catch((e) => {
+        setError(e.message);
+      });
 
+    const getComponents = (
+      settings.template
+        ? wallet.listSubstates(provider, settings.template, "Component", null, null)
+        : Promise.resolve(null)
+    )
+      .then((resp) => {
+        if (resp?.substates?.length) {
+          setComponents(resp.substates.map((s) => s.substate_id));
+        } else {
+          setComponents([]);
+        }
+      })
+      .catch((e) => {
+        setError(e.message);
+      });
 
-    console.log(templateDefinition);
-
-    const forms = templateDefinition?.V1.functions.map((func, i) => {
-        return (
-            <>
-                <CallTemplateForm
-                    key={`calltemplate${i}`}
-                    func={func}
-                    badges={badges}
-                    selectedBadge={selectedBadge}
-                    onBadgeChange={setSelectedBadge}
-                    components={components}
-                    selectedComponent={selectedComponent}
-                    onComponentChange={setSelectedComponent}
-                    onCall={values => {
-                        setLastResult({index: i, result: null});
-                        wallet.buildInstructionsAndSubmit(
-                            provider,
-                            settings,
-                            selectedBadge,
-                            selectedComponent,
-                            func,
-                            values
-                        )
-                            .then(resp => {
-                                setLastResult({index: i, result: resp.result as FinalizeResult});
-                            })
-                            .catch(e => {
-                                setLastResult(null);
-                                setError(e.message);
-                            });
-                    }}
-                />
-                {lastResult?.result && lastResult.index === i ? (
-                    <Grid key={`grid${i}`} item xs={12} md={12} lg={12}>
-                        {(lastResult as any).result.result.Accept ? (
-                            <Alert severity="success">
-                                Accept:
-                                <pre>{JSON.stringify((lastResult as any).result.result.Accept)}</pre>
-                                {lastResult.result.execution_results
-                                    .filter(r => r.indexed.value !== "Null")
-                                    .map((r, i) => (
-                                        <p key={`return${i}`}>{JSON.stringify(r.indexed.value)}</p>
-                                    ))}
-                            </Alert>
-                        ) : (lastResult as any).result.result.AcceptFeeRejectRest ? (
-                            <Alert severity="error">
-                                AcceptFeeRejectRest: Error calling function:{" "}
-                                {JSON.stringify(
-                                    (lastResult as any).result.result.AcceptFeeRejectRest[1]
-                                )}
-                            </Alert>
-                        ) : (
-                            <Alert severity="error">
-                                Error calling function:{" "}
-                                {JSON.stringify((lastResult as any).result.result.Reject)}
-                            </Alert>
-                        )}
-
-                        {lastResult.result.logs.map((log, j) => (
-                            <p key={`logs${j}`}>
-                                {log.level} {log.message}
-                            </p>
-                        ))}
-                    </Grid>
-                ) : (
-                    lastResult?.index === i && <CircularProgress/>
-                )}
-            </>
-        );
+    Promise.allSettled([getBadges, getComponents, getTemplateDef]).then(() => {
+      setIsLoading(false);
     });
+  }, [settings, provider]);
 
-    return <HomeLayout error={error} settings={settings} onCreateFreeTestCoins={async () => {
-        await wallet.createFreeTestCoins(provider)
-    }} setSettings={onSaveSettings}>
-        {isLoading ? <CircularProgress/> : null}
+  useEffect(() => {
+    if (!provider) {
+      return;
+    }
+
+    provider
+      .getAccount()
+      .then((resp: Account) => {
+        setAccount(resp);
+      })
+      .catch((e) => {
+        setError(e.message);
+      });
+  }, [provider]);
+
+  useEffect(() => {
+    if (!selectedComponent) {
+      setSelectedComponent(components.length > 0 ? components[0] : null);
+    }
+  }, [components, selectedComponent]);
+
+  if (!provider) {
+    return (
+      <HomeLayout error={error} settings={settings} setSettings={onSaveSettings}>
+        <pre>Please connect your wallet</pre>
+      </HomeLayout>
+    );
+  }
+
+  if (!settings || !settings.template) {
+    return (
+      <>
+        <AccountDetails
+          account={account}
+          balances={accountBalances}
+          onRefreshBalances={onRefreshBalances}
+        ></AccountDetails>
+        <HomeLayout error={error} settings={settings} setSettings={onSaveSettings}>
+          <pre>Please add a template address to settings</pre>
+        </HomeLayout>
+      </>
+    );
+  }
+
+  const forms = templateDefinition?.V1.functions.map((func, i) => {
+    return (
+      <>
+        <CallTemplateForm
+          key={`calltemplate${i}`}
+          func={func}
+          badges={badges}
+          selectedBadge={selectedBadge}
+          onBadgeChange={setSelectedBadge}
+          components={components}
+          selectedComponent={selectedComponent}
+          onComponentChange={setSelectedComponent}
+          onCall={(values) => {
+            setLastResult({ index: i, result: null });
+            wallet
+              .buildInstructionsAndSubmit(provider, settings, selectedBadge, selectedComponent, func, values)
+              .then((resp) => {
+                setLastResult({
+                  index: i,
+                  result: resp?.result.result as FinalizeResult | null,
+                });
+              })
+              .catch((e) => {
+                setLastResult(null);
+                setError(e.message);
+              });
+          }}
+        />
+        {lastResult?.result && lastResult.index === i ? (
+          <Grid key={`grid${i}`} item xs={12} md={12} lg={12}>
+            {(lastResult as any).result.result.Accept ? (
+              <Alert severity="success">
+                Accept:
+                <pre>{JSON.stringify((lastResult as any).result.result.Accept)}</pre>
+                {lastResult.result.execution_results
+                  .filter((r) => r.indexed.value !== "Null")
+                  .map((r, i) => (
+                    <p key={`return${i}`}>{JSON.stringify(r.indexed.value)}</p>
+                  ))}
+              </Alert>
+            ) : (lastResult as any).result.result.AcceptFeeRejectRest ? (
+              <Alert severity="error">
+                AcceptFeeRejectRest: Error calling function:{" "}
+                {JSON.stringify((lastResult as any).result.result.AcceptFeeRejectRest[1])}
+              </Alert>
+            ) : (
+              <Alert severity="error">
+                Error calling function: {JSON.stringify((lastResult as any).result.result.Reject)}
+              </Alert>
+            )}
+
+            {lastResult.result.logs.map((log, j) => (
+              <p key={`logs${j}`}>
+                {log.level} {log.message}
+              </p>
+            ))}
+          </Grid>
+        ) : (
+          lastResult?.index === i && <CircularProgress />
+        )}
+      </>
+    );
+  });
+
+  return (
+    <>
+      <AccountDetails
+        account={account}
+        balances={accountBalances}
+        onRefreshBalances={onRefreshBalances}
+      ></AccountDetails>
+      <HomeLayout
+        error={error}
+        settings={settings}
+        onCreateFreeTestCoins={async () => {
+          await wallet.createFreeTestCoins(provider);
+        }}
+        setSettings={onSaveSettings}
+      >
+        {isLoading ? <CircularProgress /> : null}
         {forms?.map((form, i) => (
-            <Grid key={`form${i}`} item xs={12} md={12} lg={12}>
-                {form}
-            </Grid>
+          <Grid key={`form${i}`} item xs={12} md={12} lg={12}>
+            {form}
+          </Grid>
         ))}
-    </HomeLayout>;
+      </HomeLayout>
+    </>
+  );
 }
-
 
 interface LayoutProps {
-    error: string | null;
-    settings: Settings | null;
-    setSettings: (settings: Settings) => void;
-    onCreateFreeTestCoins?: () => void;
-    children: React.ReactNode;
+  error: string | null;
+  settings: Settings | null;
+  setSettings: (settings: Settings) => void;
+  onCreateFreeTestCoins?: () => void;
+  children: React.ReactNode;
 }
 
-function HomeLayout({error, settings, setSettings, onCreateFreeTestCoins, children}: LayoutProps) {
-    return (
-        <>
-            <Grid item sm={12} md={12} xs={12}>
-                <SecondaryHeading>Template</SecondaryHeading>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-                {error && (
-                    <Alert icon={<Error/>} severity="error">
-                        {error}
-                    </Alert>
-                )}
-                <StyledPaper>
-                    {<Button disabled={!onCreateFreeTestCoins} onClick={onCreateFreeTestCoins}>Create Free Test Coins</Button>}
-                    {settings ? <SettingsForm settings={settings} onSave={setSettings}/> : <CircularProgress/>}
-                </StyledPaper>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-                <StyledPaper>
-                    {children}
-                </StyledPaper>
-            </Grid>
-        </>
-    )
+function HomeLayout({ error, settings, setSettings, onCreateFreeTestCoins, children }: LayoutProps) {
+  return (
+    <>
+      <Grid item sm={12} md={12} xs={12}>
+        <SecondaryHeading>Template</SecondaryHeading>
+      </Grid>
+      <Grid item xs={12} md={12} lg={12}>
+        {error && (
+          <Alert icon={<Error />} severity="error">
+            {error}
+          </Alert>
+        )}
+        <StyledPaper>
+          {
+            <Button disabled={!onCreateFreeTestCoins} onClick={onCreateFreeTestCoins}>
+              Create Free Test Coins
+            </Button>
+          }
+          {settings ? <SettingsForm settings={settings} onSave={setSettings} /> : <CircularProgress />}
+        </StyledPaper>
+      </Grid>
+      <Grid item xs={12} md={12} lg={12}>
+        <StyledPaper>{children}</StyledPaper>
+      </Grid>
+    </>
+  );
 }
-
 
 export default Home;

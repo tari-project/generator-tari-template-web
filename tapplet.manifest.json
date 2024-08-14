@@ -1,0 +1,53 @@
+{
+  "packageName": "@tari-project/template-web",
+  "version": "0.0.0",
+  "displayName": "Tari Template Web",
+  "status": "TEST",
+  "category": "TEST",
+  "author": {
+    "name": "",
+    "website": ""
+  },
+  "about": {
+    "summary": "",
+    "description": ""
+  },
+  "audits": [
+    {
+      "auditor": "",
+      "reportUrl": ""
+    }
+  ],
+  "design": {
+    "logoPath": "src/images/logo.svg",
+    "backgroundPath": "src/images/background.svg"
+  },
+  "repository": {
+    "type": "git",
+    "url": "",
+    "codeowners": []
+  },
+  "source": {
+    "location": {
+      "npm": {
+        "packageName": "",
+        "registry": "",
+        "distTarball": "",
+        "integrity": ""
+      }
+    }
+  },
+  "supportedChain": ["STAGENET", "NEXTNET"],
+  "permissions": [
+    "TariPermissionAccountBalance",
+    "TariPermissionAccountInfo",
+    "TariPermissionAccountList",
+    "TariPermissionKeyList",
+    "TariPermissionTransactionGet",
+    "TariPermissionTransactionSend",
+    "TariPermissionTransactionsGet",
+    "TariPermissionSubstatesRead",
+    "TariPermissionTemplatesRead"
+  ],
+  "manifestVersion": "1.0.0"
+}

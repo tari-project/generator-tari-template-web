@@ -1,6 +1,6 @@
 # Tari Template Website
 
-UNDER DEVELOPMENT 
+UNDER DEVELOPMENT
 
 Provides a basic Vite + React interface to construct and submit transactions from a given WASM template address.
 
@@ -9,6 +9,7 @@ Currently, only the wallet JSON-RPC interface is supported.
 ### TODO
 
 - [x] Add support for [Tari snap](https://github.com/tari-project/tari-snap)
+- [x] Add support for [Tari Universe](https://github.com/tari-project/tari-universe)
 - [ ] Support for dry-runs
 - [ ] Support for transaction fee estimation
 - [ ] Improved handling of argument and return types (e.g. Proof, Bucket etc)
@@ -17,5 +18,3 @@ Currently, only the wallet JSON-RPC interface is supported.
 - [ ] Previous transactions list
 - [ ] Customization of transactions before submitting
 - [ ] UX
-
-

@@ -1,217 +1,221 @@
-import {Settings} from "./routes/home/SettingsForm.tsx";
+import { Settings } from "./routes/home/SettingsForm.tsx";
 import {
-    FunctionDef,
-    Instruction,
-    SubstateType,
-    Arg,
+  FunctionDef,
+  SubstateType,
+  Arg,
+  AccountsGetBalancesResponse,
 } from "@tari-project/wallet_jrpc_client";
 
-import { TariProvider, MetamaskTariProvider, WalletDaemonTariProvider, TransactionStatus, SubmitTransactionRequest, WalletConnectTariProvider } from "@tari-project/tarijs";
+import {
+  TariProvider,
+  MetamaskTariProvider,
+  WalletDaemonTariProvider,
+  SubmitTransactionRequest,
+  WalletConnectTariProvider,
+  TariUniverseProvider,
+  TransactionBuilder,
+  Amount,
+  fromWorkspace,
+  buildTransactionRequest,
+  submitAndWaitForTransaction,
+  AccountTemplate,
+} from "@tari-project/tarijs";
+import { Template } from "./templates/Template.ts";
+import { SubmitTxResult } from "@tari-project/tarijs/dist/builders/types/TransactionResult";
+/** 
+//TODO add if exports from tari.js are updated
+import { templates } from "@tari-project/tarijs";
+const { AccountTemplate } = templates;
+*/
 
 export async function getTemplateDefinition<T extends TariProvider>(
-    provider: T,
-    template_address: string
+  provider: T,
+  template_address: string
 ) {
-    const resp = await provider.getTemplateDefinition(template_address);
-    return resp.template_definition;
+  const resp = await provider.getTemplateDefinition(template_address);
+  return resp.template_definition;
 }
 
 export async function listSubstates<T extends TariProvider>(
-    provider: T | null,
-    template: string | null,
-    substateType: SubstateType | null
+  provider: T | null,
+  template: string | null,
+  substateType: SubstateType | null,
+  limit: number | null,
+  offset: number | null
 ) {
-    if (provider === null) {
-        throw new Error('Provider is not initialized');
-    }
-    const substates = await provider.listSubstates(
-        template,
-        substateType,
-        null,
-        null
-    );
-    return substates;
+  if (provider === null) {
+    throw new Error("Provider is not initialized");
+  }
+  const substates = await provider.listSubstates(
+    template,
+    substateType,
+    limit,
+    offset
+  );
+  return substates;
 }
 
 export async function createFreeTestCoins<T extends TariProvider>(provider: T) {
-    console.log("createFreeTestCoins", provider.providerName);
-    switch (provider.providerName) {
-        case "WalletDaemon":
-            const walletProvider = provider as unknown as WalletDaemonTariProvider;
-            await walletProvider.createFreeTestCoins();
-            break;
-        case "WalletConnect":
-            const wcProvider = provider as unknown as WalletConnectTariProvider;
-            await wcProvider.createFreeTestCoins();
-            break;
-        case "Metamask":
-            const metamaskProvider = provider as unknown as MetamaskTariProvider;
-            await metamaskProvider.createFreeTestCoins(0);
-            break;
-        default:
-            throw new Error(`Unsupported provider: ${provider.providerName}`);
+  switch (provider.providerName) {
+    case "TariUniverse": {
+      const tuProvider = provider as unknown as TariUniverseProvider;
+      await tuProvider.createFreeTestCoins();
+      break;
     }
+    case "WalletDaemon": {
+      const walletProvider = provider as unknown as WalletDaemonTariProvider;
+      await walletProvider.createFreeTestCoins();
+      break;
+    }
+    case "WalletConnect": {
+      const wcProvider = provider as unknown as WalletConnectTariProvider;
+      await wcProvider.createFreeTestCoins();
+      break;
+    }
+    case "Metamask": {
+      const metamaskProvider = provider as unknown as MetamaskTariProvider;
+      await metamaskProvider.createFreeTestCoins(0);
+      break;
+    }
+    default:
+      throw new Error(`Unsupported provider: ${provider.providerName}`);
+  }
 }
 
-export async function getSubstate<T extends TariProvider>(provider: T, substateId: string) {
-    const resp = await provider.getSubstate(substateId);
-    return resp;
+export async function getSubstate<T extends TariProvider>(
+  provider: T,
+  substateId: string
+) {
+  const resp = await provider.getSubstate(substateId);
+  return resp;
 }
 
 export async function buildInstructionsAndSubmit(
-    provider: TariProvider,
-    settings: Settings,
-    selectedBadge: string | null,
-    selectedComponent: string | null,
-    func: FunctionDef,
-    args: object
-) {
-    const req = await createTransactionRequest(
-        provider,
-        settings,
-        selectedBadge,
-        selectedComponent,
-        func,
-        args
-    );
+  provider: TariProvider,
+  settings: Settings,
+  selectedBadge: string | null,
+  selectedComponent: string | null,
+  func: FunctionDef,
+  args: object
+): Promise<SubmitTxResult> {
+  const req = await createTransactionRequest(
+    provider,
+    settings,
+    selectedBadge,
+    selectedComponent,
+    func,
+    args
+  );
 
-    const resp = await provider.submitTransaction(req);
-
-    let result = await waitForTransactionResult(provider, resp.transaction_id);
-
-    return result;
-}
-
-async function waitForTransactionResult(provider: TariProvider, transactionId: string) {
-    while (true) {
-        const resp = await provider.getTransactionResult(transactionId);
-        const FINALIZED_STATUSES = [
-            TransactionStatus.Accepted,
-            TransactionStatus.Rejected,
-            TransactionStatus.InvalidTransaction,
-            TransactionStatus.OnlyFeeAccepted,
-            TransactionStatus.DryRun
-        ];
-
-        if (resp.status == TransactionStatus.Rejected) {
-            throw new Error(`Transaction rejected: ${JSON.stringify(resp.result)}`);
-        }
-
-        if (FINALIZED_STATUSES.includes(resp.status)) {
-            return resp;
-        }
-        await new Promise(resolve => setTimeout(resolve, 1000));
-    }
+  const tx = await submitAndWaitForTransaction(provider, req);
+  return tx;
 }
 
 export async function createTransactionRequest(
-    provider: TariProvider,
-    settings: Settings,
-    selectedBadge: string | null,
-    selectedComponent: string | null,
-    func: FunctionDef,
-    formValues: object
+  provider: TariProvider,
+  settings: Settings,
+  selectedBadge: string | null,
+  selectedComponent: string | null,
+  func: FunctionDef,
+  formValues: object
 ): Promise<SubmitTransactionRequest> {
-    const fee = 2000;
-    const account = await provider.getAccount();
+  const args = Object.values(formValues) as Arg[];
+  const isMethod =
+    func.arguments.length > 0 && func.arguments[0].name === "self";
 
-    const fee_instructions = [
-        {
-            CallMethod: {
-                component_address: account.address,
-                method: "pay_fee",
-                args: [`Amount(${fee})`]
-            }
-        }
-    ];
+  if (!isMethod && !settings.template) {
+    throw new Error("Template not set");
+  }
 
-    const args = Object.values(formValues) as Arg[];
-    const isMethod =
-        func.arguments.length > 0 && func.arguments[0].name === "self";
+  if (isMethod && !selectedComponent) {
+    throw new Error("This call requires a component to be selected");
+  }
 
-    if (!isMethod && !settings.template) {
-        throw new Error("Template not set");
+  const fee = new Amount(2000);
+  const maxfee = fee.getStringValue();
+  const account = await provider.getAccount();
+  const accountComponent = new AccountTemplate(account.address);
+  const txBuilder = new TransactionBuilder();
+  const template: Template = isMethod
+    ? new Template(selectedComponent ?? "", undefined, func.name)
+    : new Template(settings.template ?? "", func.name, undefined);
+
+  const transaction = txBuilder.feeTransactionPayFromComponent(
+    account.address,
+    maxfee
+  );
+
+  isMethod && selectedBadge
+    ? [
+        transaction
+          .createProof(account.address, selectedBadge)
+          .saveVar("proofInstruction"),
+      ]
+    : [];
+
+  isMethod
+    ? transaction.callMethod(template.method, args)
+    : transaction.callFunction(template.fct, args);
+
+  func.output;
+
+  if (
+    typeof func.output === "object" &&
+    "Other" in func.output &&
+    func.output.Other.name === "Bucket"
+  )
+    transaction
+      .saveVar("deposit")
+      .callMethod(accountComponent.deposit, [fromWorkspace("deposit")]);
+
+  const txBuilt = transaction.dropAllProofsInWorkspace().build();
+  const required_substates = [{ substate_id: account.address, version: null }];
+
+  if (selectedComponent) {
+    required_substates.push({ substate_id: selectedComponent, version: null });
+  }
+
+  const req = buildTransactionRequest(
+    txBuilt,
+    account.account_id,
+    required_substates
+  );
+
+  return req;
+}
+
+export async function getAccountBalances<T extends TariProvider>(
+  provider: T,
+  accountAddress: string
+): Promise<AccountsGetBalancesResponse | null> {
+  switch (provider.providerName) {
+    case "TariUniverse": {
+      const tuProvider = provider as unknown as TariUniverseProvider;
+      const balance = await tuProvider.getAccountBalances(accountAddress);
+      return balance;
     }
-
-    if (isMethod && !selectedComponent) {
-        throw new Error("This call requires a component to be selected");
+    case "WalletDaemon": {
+      const walletProvider = provider as unknown as WalletDaemonTariProvider;
+      const balance = (await walletProvider.getAccountBalances(
+        accountAddress
+      )) as AccountsGetBalancesResponse;
+      return balance;
     }
-
-    let bucketId = 0;
-
-    const proofInstructions =
-        isMethod && selectedBadge
-            ? [
-                {
-                    CallMethod: {
-                        component_address: account.address,
-                        method: "create_proof_for_resource",
-                        args: [selectedBadge]
-                    }
-                },
-                {
-                    PutLastInstructionOutputOnWorkspace: {key: [bucketId++]}
-                }
-            ] : [];
-
-    const callInstruction = isMethod
-        ? {
-            CallMethod: {
-                component_address: selectedComponent,
-                method: func.name,
-                args: args
-            }
-        }
-        : {
-            CallFunction: {
-                template_address: settings.template,
-                function: func.name,
-                args: args
-            }
-        };
-
-    func.output
-
-    let nextInstructions: Instruction[] = [];
-    if (typeof func.output === 'object' && "Other" in func.output && func.output.Other.name === "Bucket") {
-        nextInstructions = [
-            {
-                PutLastInstructionOutputOnWorkspace: {key: [bucketId]}
-            },
-            {
-                CallMethod: {
-                    component_address: account.address,
-                    method: "deposit",
-                    args: [`Workspace(${bucketId})`],
-                }
-            }
-        ];
+    case "WalletConnect": {
+      // TODO refactor if provider interface from tarijs is refactored and match the type
+      // const wcProvider = provider as unknown as WalletConnectTariProvider;
+      // const { resources } = await wcProvider.getAccount();
+      // return resources;
+      return null;
     }
-
-    const instructions = [
-        ...proofInstructions,
-        callInstruction,
-        ...nextInstructions,
-        "DropAllProofsInWorkspace" as Instruction
-    ];
-
-    const required_substates = [
-        {substate_id: account.address, version: null}
-    ]
-
-    if (selectedComponent) {
-        required_substates.push({substate_id: selectedComponent, version: null});
+    case "Metamask": {
+      // TODO refactor if provider interface from tarijs is refactored and match the type
+      // const metamaskProvider = provider as unknown as MetamaskTariProvider;
+      // const { resources } = await metamaskProvider.getAccount();
+      // return resources;
+      return null;
     }
-
-    return {
-        account_id: account.account_id,
-        fee_instructions,
-        instructions: instructions as object[],
-        inputs: [],
-        input_refs: [],
-        required_substates,
-        is_dry_run: false,
-        min_epoch: null,
-        max_epoch: null
-    };
+    default:
+      throw new Error(`Unsupported provider: ${provider.providerName}`);
+  }
 }

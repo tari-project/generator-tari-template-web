@@ -32,7 +32,7 @@ export const breadcrumbRoutes = [
   {
     label: "Home",
     path: "/",
-    dynamic: false
+    dynamic: false,
   },
   {
     label: "Substates",
@@ -42,8 +42,8 @@ export const breadcrumbRoutes = [
   {
     label: "Error",
     path: "*",
-    dynamic: false
-  }
+    dynamic: false,
+  },
 ];
 export default function App() {
   return (

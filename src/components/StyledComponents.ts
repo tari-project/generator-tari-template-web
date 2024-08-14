@@ -46,7 +46,7 @@ export const StyledPaper = styled(Paper)(({ theme }) => ({
   boxShadow: "10px 14px 28px rgba(35, 11, 73, 0.05)",
 }));
 
-export const DataTableCell = styled(TableCell)(({ }) => ({
+export const DataTableCell = styled(TableCell)(() => ({
   fontFamily: "'Courier New', Courier, monospace",
 }));
 
