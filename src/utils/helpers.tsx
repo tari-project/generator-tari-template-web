@@ -20,12 +20,12 @@
 //  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import { toHexString } from "@tari-project/tarijs/src/utils";
+import { utils } from "@tari-project/tarijs";
 
 export const renderJson = (json: any) => {
   if (Array.isArray(json)) {
     if (json.length == 32) {
-      return <span className="string">"{toHexString(json)}"</span>;
+      return <span className="string">"{utils.toHexString(json)}"</span>;
     }
     return (
       <>
