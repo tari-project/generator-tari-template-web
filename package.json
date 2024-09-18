@@ -1,7 +1,7 @@
 {
   "name": "@tari-project/template-web",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,8 +14,8 @@
     "@mui/material": "^5.11.3",
     "@mui/x-data-grid": "^5.17.17",
     "@tari-project/tarijs": "^0.1.23",
-    "@tari-project/typescript-bindings": "^1.0.6",
-    "@tari-project/wallet_jrpc_client": "^1.0.8",
+    "@tari-project/typescript-bindings": "^1.1.0",
+    "@tari-project/wallet_jrpc_client": "^1.1.0",
     "@walletconnect/modal": "^2.6.2",
     "@walletconnect/universal-provider": "^2.13.3",
     "qrcode.react": "3.1.0",
