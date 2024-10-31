@@ -13,6 +13,7 @@ interface LayoutProps {
 }
 
 function AccountDetails({ onRefreshBalances, account, balances }: LayoutProps) {
+  console.log("account", account);
   return (
     <>
       <Grid item xs={12} md={12} lg={12}>
@@ -22,28 +23,18 @@ function AccountDetails({ onRefreshBalances, account, balances }: LayoutProps) {
         <StyledPaper>
           {account ? (
             <Box sx={{ width: "100%" }}>
-              <Button
-                variant="contained"
-                sx={{ width: "auto" }}
-                onClick={onRefreshBalances}
-              >
+              <Button variant="contained" sx={{ width: "auto" }} onClick={onRefreshBalances}>
                 Refresh account balances
               </Button>
               <Typography variant="body1">Id: {account.account_id}</Typography>
-              <Typography variant="body1">
-                Address: {account.address}
-              </Typography>
-              <Typography variant="body1">
-                Resources list length: {account.resources.length}
-              </Typography>
+              <Typography variant="body1">Address: {account.address}</Typography>
+              <Typography variant="body1">Resources list length: {account.resources.length}</Typography>
               {account.resources?.map((res, i) => (
                 <Grid key={`form${i}`} item xs={12} md={12} lg={12}>
                   {JSON.stringify(res, null, 2)}
                 </Grid>
               ))}
-              <Typography variant="body1">
-                Balances list length: {balances?.balances.length}
-              </Typography>
+              <Typography variant="body1">Balances list length: {balances?.balances.length}</Typography>
               {balances?.balances.map((balance, i) => (
                 <Grid key={`form${i}`} item xs={12} md={12} lg={12}>
                   {JSON.stringify(balance, null, 2)}
