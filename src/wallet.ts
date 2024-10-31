@@ -1,10 +1,5 @@
 import { Settings } from "./routes/home/SettingsForm.tsx";
-import {
-  FunctionDef,
-  SubstateType,
-  Arg,
-  AccountsGetBalancesResponse,
-} from "@tari-project/wallet_jrpc_client";
+import { FunctionDef, SubstateType, Arg, AccountsGetBalancesResponse } from "@tari-project/wallet_jrpc_client";
 
 import {
   TariProvider,
@@ -18,20 +13,18 @@ import {
   fromWorkspace,
   buildTransactionRequest,
   submitAndWaitForTransaction,
-  AccountTemplate,
+  templates,
 } from "@tari-project/tarijs";
 import { Template } from "./templates/Template.ts";
 import { SubmitTxResult } from "@tari-project/tarijs/dist/builders/types/TransactionResult";
+const { AccountTemplate } = templates;
 /** 
 //TODO add if exports from tari.js are updated
 import { templates } from "@tari-project/tarijs";
 const { AccountTemplate } = templates;
 */
 
-export async function getTemplateDefinition<T extends TariProvider>(
-  provider: T,
-  template_address: string
-) {
+export async function getTemplateDefinition<T extends TariProvider>(provider: T, template_address: string) {
   const resp = await provider.getTemplateDefinition(template_address);
   return resp.template_definition;
 }
@@ -41,23 +34,20 @@ export async function listSubstates<T extends TariProvider>(
   template: string | null,
   substateType: SubstateType | null,
   limit: number | null,
-  offset: number | null
+  offset: number | null,
 ) {
   if (provider === null) {
     throw new Error("Provider is not initialized");
   }
-  const substates = await provider.listSubstates(
-    template,
-    substateType,
-    limit,
-    offset
-  );
+  const substates = await provider.listSubstates(template, substateType, limit, offset);
   return substates;
 }
 
 export async function createFreeTestCoins<T extends TariProvider>(provider: T) {
+  console.log("xxx tari-temp-web provider", provider);
   switch (provider.providerName) {
     case "TariUniverse": {
+      console.log("xxx tari-temp-web provider TU");
       const tuProvider = provider as unknown as TariUniverseProvider;
       await tuProvider.createFreeTestCoins();
       break;
@@ -82,10 +72,7 @@ export async function createFreeTestCoins<T extends TariProvider>(provider: T) {
   }
 }
 
-export async function getSubstate<T extends TariProvider>(
-  provider: T,
-  substateId: string
-) {
+export async function getSubstate<T extends TariProvider>(provider: T, substateId: string) {
   const resp = await provider.getSubstate(substateId);
   return resp;
 }
@@ -96,16 +83,10 @@ export async function buildInstructionsAndSubmit(
   selectedBadge: string | null,
   selectedComponent: string | null,
   func: FunctionDef,
-  args: object
+  args: object,
 ): Promise<SubmitTxResult> {
-  const req = await createTransactionRequest(
-    provider,
-    settings,
-    selectedBadge,
-    selectedComponent,
-    func,
-    args
-  );
+  const req = await createTransactionRequest(provider, settings, selectedBadge, selectedComponent, func, args);
+  console.log("-------- build instruction and submit", req);
 
   const tx = await submitAndWaitForTransaction(provider, req);
   return tx;
@@ -117,11 +98,10 @@ export async function createTransactionRequest(
   selectedBadge: string | null,
   selectedComponent: string | null,
   func: FunctionDef,
-  formValues: object
+  formValues: object,
 ): Promise<SubmitTransactionRequest> {
   const args = Object.values(formValues) as Arg[];
-  const isMethod =
-    func.arguments.length > 0 && func.arguments[0].name === "self";
+  const isMethod = func.arguments.length > 0 && func.arguments[0].name === "self";
 
   if (!isMethod && !settings.template) {
     throw new Error("Template not set");
@@ -140,33 +120,18 @@ export async function createTransactionRequest(
     ? new Template(selectedComponent ?? "", undefined, func.name)
     : new Template(settings.template ?? "", func.name, undefined);
 
-  const transaction = txBuilder.feeTransactionPayFromComponent(
-    account.address,
-    maxfee
-  );
+  const transaction = txBuilder.feeTransactionPayFromComponent(account.address, maxfee);
 
   isMethod && selectedBadge
-    ? [
-        transaction
-          .createProof(account.address, selectedBadge)
-          .saveVar("proofInstruction"),
-      ]
+    ? [transaction.createProof(account.address, selectedBadge).saveVar("proofInstruction")]
     : [];
 
-  isMethod
-    ? transaction.callMethod(template.method, args)
-    : transaction.callFunction(template.fct, args);
+  isMethod ? transaction.callMethod(template.method, args) : transaction.callFunction(template.fct, args);
 
   func.output;
 
-  if (
-    typeof func.output === "object" &&
-    "Other" in func.output &&
-    func.output.Other.name === "Bucket"
-  )
-    transaction
-      .saveVar("deposit")
-      .callMethod(accountComponent.deposit, [fromWorkspace("deposit")]);
+  if (typeof func.output === "object" && "Other" in func.output && func.output.Other.name === "Bucket")
+    transaction.saveVar("deposit").callMethod(accountComponent.deposit, [fromWorkspace("deposit")]);
 
   const txBuilt = transaction.dropAllProofsInWorkspace().build();
   const required_substates = [{ substate_id: account.address, version: null }];
@@ -175,18 +140,14 @@ export async function createTransactionRequest(
     required_substates.push({ substate_id: selectedComponent, version: null });
   }
 
-  const req = buildTransactionRequest(
-    txBuilt,
-    account.account_id,
-    required_substates
-  );
+  const req = buildTransactionRequest(txBuilt, account.account_id, required_substates);
 
   return req;
 }
 
 export async function getAccountBalances<T extends TariProvider>(
   provider: T,
-  accountAddress: string
+  accountAddress: string,
 ): Promise<AccountsGetBalancesResponse | null> {
   switch (provider.providerName) {
     case "TariUniverse": {
@@ -196,9 +157,7 @@ export async function getAccountBalances<T extends TariProvider>(
     }
     case "WalletDaemon": {
       const walletProvider = provider as unknown as WalletDaemonTariProvider;
-      const balance = (await walletProvider.getAccountBalances(
-        accountAddress
-      )) as AccountsGetBalancesResponse;
+      const balance = (await walletProvider.getAccountBalances(accountAddress)) as AccountsGetBalancesResponse;
       return balance;
     }
     case "WalletConnect": {

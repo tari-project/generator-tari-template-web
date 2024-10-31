@@ -56,6 +56,7 @@ function Home() {
     result: FinalizeResult | null;
   } | null>(null);
 
+  console.log(":::::::::: template provider ", provider);
   const onRefreshBalances = useCallback(async () => {
     try {
       if (!account || !provider) return;
